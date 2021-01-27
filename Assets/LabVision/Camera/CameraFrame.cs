@@ -81,15 +81,20 @@ namespace LabVision
         {
             if (ext == null) throw new ArgumentNullException(nameof(ext));
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-            if (Format != ColorFormat.Grayscale)
+            switch (Format)
             {
-                Mat bgr = new Mat(Height, Width, CvType.CV_8UC3);
-                Imgproc.cvtColor(Mat, bgr, Imgproc.COLOR_RGB2BGR); // OpenCV uses BGR, Mat is RGB
-                Imgcodecs.imencode(ext, bgr, buffer);
-            }
-            else
-            {
-                Imgcodecs.imencode(ext, Mat, buffer);
+                case ColorFormat.RGB:
+                {
+                    Mat bgr = new Mat(Height, Width, CvType.CV_8UC3);
+                    Imgproc.cvtColor(Mat, bgr, Imgproc.COLOR_RGB2BGR); // OpenCV uses BGR, Mat is RGB
+                    Imgcodecs.imencode(ext, bgr, buffer);
+                    break;
+                }
+                case ColorFormat.Grayscale:
+                    Imgcodecs.imencode(ext, Mat, buffer);
+                    break;
+                default:
+                    throw new NotSupportedException($"Image encoding for {Format} not supported");
             }
             return buffer.toArray();
         }
