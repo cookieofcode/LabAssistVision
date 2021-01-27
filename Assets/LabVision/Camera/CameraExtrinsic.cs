@@ -24,6 +24,16 @@ namespace LabVision
         /// </summary>
         public Matrix4x4 viewFromWorld;
 
+        /// <summary>
+        /// The forward vector of the camera.
+        /// </summary>
+        public Vector4 Forward => viewFromWorld.GetColumn(2);
+
+        /// <summary>
+        /// The upwards vector of the camera.
+        /// </summary>
+        public Vector4 Upwards => viewFromWorld.GetColumn(1);
+
         public CameraExtrinsic(Matrix4x4 viewFromWorld)
         {
             this.viewFromWorld = viewFromWorld;
@@ -40,7 +50,6 @@ namespace LabVision
             if (cameraCoordinateSystem == null) throw new ArgumentNullException(nameof(cameraCoordinateSystem));
             if (cameraCoordinateSystem == null) throw new ArgumentNullException(nameof(worldOrigin));
             System.Numerics.Matrix4x4? viewFromWorld = cameraCoordinateSystem.TryGetTransformTo(worldOrigin);
-            //if (!viewFromWorld.HasValue) throw new InvalidOperationException("Could not retrieve extrinsics.");
             if (!viewFromWorld.HasValue)
             {
                 Debug.LogWarning("Could no retrieve view from world. Fallback to identity");
@@ -54,7 +63,9 @@ namespace LabVision
         public override string ToString()
         {
             Vector3 position = viewFromWorld.GetColumn(3);
-            Quaternion rotation = Quaternion.LookRotation(viewFromWorld.GetColumn(2), viewFromWorld.GetColumn(1));
+            Vector4 forward = viewFromWorld.GetColumn(2);
+            Vector4 upwards = viewFromWorld.GetColumn(1);
+            Quaternion rotation = Quaternion.LookRotation(forward, upwards);
             return $"Position: {position.ToString("G4")}, Rotation: {rotation.eulerAngles.ToString("G4")}";
         }
     }

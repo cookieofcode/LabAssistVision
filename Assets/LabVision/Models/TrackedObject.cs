@@ -101,8 +101,8 @@ namespace LabVision
             Windows.Foundation.Point target = Convert(GetBoundingBoxTarget());
             Vector2 unprojection = Intrinsic.UnprojectAtUnitDepth(target);
             Vector3 correctedUnprojection = new Vector3(unprojection.x + unprojectionOffset.x, unprojection.y + unprojectionOffset.y, 1.0f);
-            Vector4 forward = -Extrinsic.viewFromWorld.GetColumn(2);
-            Vector4 upwards = Extrinsic.viewFromWorld.GetColumn(1);
+            Vector4 forward = -Extrinsic.Forward;
+            Vector4 upwards = Extrinsic.Upwards;
             Quaternion rotation = Quaternion.LookRotation(forward, upwards);
             Vector3 layForward = Vector3.Normalize(rotation * correctedUnprojection);
 #else
