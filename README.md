@@ -4,6 +4,9 @@ Proof of concept of a mixed reality application for the Microsoft HoloLens 2 int
 
 This work is part of the thesis "Mixed Reality Task Assistance for Pharmaceutical Laboratories using Markerless Object Tracking and Cloud Services" submitted to the [University of Applied Sciences Northwestern Switzerland](https://www.fhnw.ch).
 
+Author: [Severin Pereto (cookieofcode)](https://github.com/cookieofcode)\
+Supervisor: [Prof. Dr. Doris Agotai](https://www.fhnw.ch/de/personen/doris-agotai)
+
 ## Overview
 
 *Lab Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware).
@@ -35,6 +38,10 @@ A demonstration video in full length is available at: https://youtu.be/ru2a367se
 
 ### Setup
 
+#### Prerequirements
+
+A pretrained Custom Vision network including a prediction endpoint and key is required.
+
 Lab Vision requires [OpenCVForUnity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088) and a pretrained [Custom Vision](https://www.customvision.ai) prediction API. The following steps are required after cloning to setup the project:
 
 1. Open the project (e.g. in the Unity Hub) with Unity Version 2019.4.15f1. *Note: Another Unity version may requires adjustments or API updates*
@@ -47,7 +54,7 @@ Lab Vision requires [OpenCVForUnity](https://assetstore.unity.com/packages/tools
    - Platform: Universal Windows Platform
    - Target Device: HoloLens
 
-5. Verify the project settings (see Project Configuration)
+5. Verify the project settings (see [Project Configuration](#project-configuration))
 
 6. Add the Custom Vision prediction key and prediction endpoint obtained from the portal to the [CustomVisionObjectDetectionService](Assets/MixedRealityToolkit.Generated/Extensions/Detection/CustomVisionObjectDetectionService.cs) profile. This setting can be found in the Game Object "MixedRealityToolkit" under the tab Extensions > Configurations > CustomVisionObjectDetectionService > DefaultObjectDetectionServiceProfile. *Note: If no profile is assigned, assign the default or create a new*.
 
@@ -62,8 +69,6 @@ The following table contains dependencies required in this project:
 | [DotNetWinRT](https://www.nuget.org/packages/Microsoft.Windows.MixedReality.DotNetWinRT) | 0.5.1049 | Included in repository, resolved by NuGet for Unity | NuGet Package |
 | [Mixed Reality Toolkit for Unity](https://github.com/microsoft/MixedRealityToolkit-Unity) | 2.5.1 | Resolved by Unity Package Manager | Licensed under the MIT License |
 | [Barracuda](https://docs.unity3d.com/Packages/com.unity.barracuda@1.0/manual/index.html) | 1.0.4 | Resolved by Unity Package Manager | Required to run the Custom Vision network on the device (experimental feature) |
-
-**A pretrained Custom Vision network including a prediction endpoint and key is required.**
 
 ### Project Configuration
 
@@ -109,4 +114,4 @@ A [Camera Service](Assets/MixedRealityToolkit.Generated/Extensions/Camera/Camera
 
 ## License
 
-Lab Vision is open for use in compliance with MIT License. The grayscale shader for the video display is adapted from [HoloLensARTookit](https://github.com/qian256/HoloLensARToolKit), which is licensed under GNU Lesser General Public License v3.0.
+Lab Vision is open for use in compliance with the [MIT License](LICENSE). The grayscale shader for the video display is adapted from [HoloLensARTookit](https://github.com/qian256/HoloLensARToolKit), which is licensed under GNU Lesser General Public License v3.0.
