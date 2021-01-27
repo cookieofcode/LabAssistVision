@@ -98,6 +98,7 @@ Ensure that the following settings are configured in Unity:
 ### Developer Console
 
 ![The developer console provides settings to adjust at runtime](developer-console.png)
+
 The developer console provides a tool to change parameters at runtime (e.g. video parameters, color format, trackers). In *Video Profile Selection* each available resolution and frame rate provided by the [Locatable Camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera) are available for each color format (RGB/Grayscale).
 
 The *Tracker Selection* allows to switch between tracker of the [OpenCV Tracking API](https://docs.opencv.org/4.5.0/d9/df8/group__tracking.html) implemented by [OpenCVForUnity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088). Currently, these are *MOSSE*, *TLD*, *Boosting*, *Median Flow*, *MIL*, *CSRT*, *KCF*. *Note that some trackers only support a specific color format or are converting the image format internally, which impacts performance.*
