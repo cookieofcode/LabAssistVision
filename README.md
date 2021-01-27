@@ -4,14 +4,14 @@ Proof of concept of a mixed reality application for the Microsoft HoloLens 2 int
 
 This work is part of the thesis "*Mixed Reality Task Assistance for Pharmaceutical Laboratories using Markerless Object Tracking and Cloud Services*" submitted to the [University of Applied Sciences Northwestern Switzerland](https://www.fhnw.ch) at the [Institute for Interactive Technologies (IIT)](https://www.fhnw.ch/en/about-fhnw/schools/school-of-engineering/institutes/institute-for-interactive-technologies).
 
-Author: [Severin Pereto (cookieofcode)](https://github.com/cookieofcode)\
+Author: [Severin Pereto](https://github.com/cookieofcode)\
 Supervisor: [Prof. Dr. Doris Agotai](https://www.fhnw.ch/de/personen/doris-agotai)
 
 ## Overview
 
 *Lab Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware). By using the voice command *"Detect"*, objects are recognized by a cloud service to initialize markerless tracking on the device. The tracked objects can be confirmed by directly looking at the object (eye gaze) and the voice command *"Okay"* to change the color of the tooltip.
 
-[![A demonstration video is available at: https://youtu.be/ru2a367seSQ](./teaser.gif)](https://youtu.be/ru2a367seSQ)
+[![Image of demonstration not loaded yet. See the demonstration video below.](./teaser.gif)](https://youtu.be/ru2a367seSQ)
 
 A demonstration video in full length is available at: https://youtu.be/ru2a367seSQ
 
