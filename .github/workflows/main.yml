@@ -27,7 +27,6 @@ jobs:
           repository: cookieofcode/LabVision-OpenCVForUnity
           token: ${{ secrets.LABVISION_PAT }} # `LABVISION_PAT` is a secret that contains your PAT
           path: Assets/OpenCVForUnity
-          lfs: true
 
       - name: Cache Unity Setup Installers
         uses: actions/cache@v2.1.3
