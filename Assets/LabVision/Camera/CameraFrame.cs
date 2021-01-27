@@ -1,4 +1,4 @@
-﻿using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.CoreModule;
 using System;
 using JetBrains.Annotations;
 using OpenCVForUnity.ImgcodecsModule;
@@ -8,10 +8,29 @@ namespace LabVision
 {
     public class CameraFrame : IDisposable
     {
+        /// <summary>
+        /// Contains the image data as OpenCV <seealso cref="Mat"/>.
+        /// </summary>
         [NotNull] public readonly Mat Mat;
+
+        /// <summary>
+        /// Contains information on camera intrinsic parameters.
+        /// </summary>
         [NotNull] public readonly CameraIntrinsic Intrinsic;
+
+        /// <summary>
+        /// Contains information on the extrinsic of the camera.
+        /// </summary>
         [NotNull] public readonly CameraExtrinsic Extrinsic;
+
+        /// <summary>
+        /// The width of the initialized camera profile, padded to 64 bits.
+        /// </summary>
         public readonly int Width;
+
+        /// <summary>
+        /// The height of the initialized camera profile.
+        /// </summary>
         public readonly int Height;
 
         /// <summary>
@@ -19,6 +38,9 @@ namespace LabVision
         /// </summary>
         public uint FrameCount;
 
+        /// <summary>
+        /// Determines the color format of the camera frame.
+        /// </summary>
         public ColorFormat Format;
 
         public CameraFrame([NotNull] Mat mat, [NotNull] CameraIntrinsic intrinsic, [NotNull] CameraExtrinsic extrinsic, int width, int height, uint frameCount, ColorFormat format)
@@ -38,6 +60,12 @@ namespace LabVision
             Mat?.Dispose();
         }
 
+        /// <summary>
+        /// Encodes the image of the camera frame into a memory buffer using OpenCV.
+        /// See the <see href="https://docs.opencv.org/4.5.0/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56">OpenCV documentation</see> for the list of supported file formats.
+        /// </summary>
+        /// <param name="ext">The extension of the file format supported by OpenCV</param>
+        /// <returns>A resized buffer to fit the compressed image</returns>
         [NotNull]
         public byte[] EncodeImage([NotNull] string ext = ".jpg")
         {
