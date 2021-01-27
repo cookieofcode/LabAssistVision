@@ -1,4 +1,4 @@
-using OpenCVForUnity.CoreModule;
+﻿using OpenCVForUnity.CoreModule;
 using System;
 using JetBrains.Annotations;
 using OpenCVForUnity.ImgcodecsModule;
@@ -46,9 +46,11 @@ namespace LabVision
         public CameraFrame([NotNull] Mat mat, [NotNull] CameraIntrinsic intrinsic, [NotNull] CameraExtrinsic extrinsic, int width, int height, uint frameCount, ColorFormat format)
         {
             if (mat == null) throw new ArgumentNullException(nameof(mat));
-            Intrinsic = intrinsic ?? throw new ArgumentNullException(nameof(intrinsic));
-            Extrinsic = extrinsic ?? throw new ArgumentNullException(nameof(extrinsic));
+            if (intrinsic == null) throw new ArgumentNullException(nameof(intrinsic));
+            if (extrinsic == null) throw new ArgumentNullException(nameof(extrinsic));
             Mat = mat;
+            Intrinsic = intrinsic;
+            Extrinsic = extrinsic;
             Width = width;
             Height = height;
             FrameCount = frameCount;
