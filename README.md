@@ -9,7 +9,7 @@ Supervisor: [Prof. Dr. Doris Agotai](https://www.fhnw.ch/de/personen/doris-agota
 
 ## Overview
 
-*Lab Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware).
+*Lab Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware). By using the voice command *"Detect"*, objects are recognized by a cloud service to initialize markerless tracking on the device. The tracked objects can be confirmed by directly looking at the object (eye gaze) and the voice command *"Okay"* to change the color of the tooltip.
 
 [![A demonstration video is available at: https://youtu.be/ru2a367seSQ](./teaser.gif)](https://youtu.be/ru2a367seSQ)
 
@@ -20,8 +20,8 @@ A demonstration video in full length is available at: https://youtu.be/ru2a367se
 - Provides a camera service using the [color camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera#hololens-2) of the Microsoft HoloLens 2 in Unity without additional plugins
   - The video format can be switched during runtime
   - Provides camera extrinsic and intrinsic
-  - Supports grayscale images (extracting luminance from NV12)
-  - Supports NV12 to RGB conversion using a fragment shader
+  - Supports grayscale images (extracting luminance from [NV12](https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12))
+  - Supports [NV12](https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12) to RGB conversion using a fragment shader
   - Camera simulation using the WebCam in Unity Editor
 - Object Detection using [Custom Vision](https://customvision.ai) as Cloud Service
   - Provides tracker initialization for markerless tracking
@@ -91,23 +91,37 @@ Ensure that the following settings are configured in Unity:
 ### Development
 
 - It is possible to run the application using the Unity Editor and the Play Mode to get fast feedback during development. While object detection and tracking is supported, mapping to 3D is partially possible using Holographic Remoting due to missing intrinsic and extrinsic.
-  - The [MonoCamera](Assets/LabVision/Camera/MonoCamera.cs) simulates the [Locatable Camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera) of the device in the Unity Editor. Using [PhotoCapture](https://docs.unity3d.com/ScriptReference/Windows.WebCam.PhotoCapture.html) used in a loop delivers the WebCam image in NV12 format (at a low framerate). The camera extrinsic and intrinsic required for mapping the 3D position are ignored.
+  - The [`MonoCamera`](Assets/LabVision/Camera/MonoCamera.cs) simulates the [Locatable Camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera) of the device in the Unity Editor. Using [PhotoCapture](https://docs.unity3d.com/ScriptReference/Windows.WebCam.PhotoCapture.html) used in a loop delivers the WebCam image in [NV12](https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12) format (at a low framerate). The camera extrinsic and intrinsic required for mapping the 3D position are ignored.
   - In Holographic Remoting, the WebCam of the computer is used. A tracked object is then mapped to the collision point of the gaze of the main camera and the [Spatial Mesh](https://docs.microsoft.com/en-us/windows/mixed-reality/design/spatial-mesh-ux). *Experimental: Using [StreamCamera](Assets/LabVision/Camera/StreamCamera.cs), the camera stream of the device obtained by the [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal) can be used in the Unity Editor. Note that a proxy is required to bypass the authentication (does also not provide extrinsic and intrinsic).*
 - The video profile, color format, and tracker can be switched during runtime. *Real-time tracking (30 FPS) is achieved using MOSSE at a resolution of 760x428 @ 30 FPS in grayscale and synchronous mode.*
 
+### Developer Console
+
+![The developer console provides settings to adjust at runtime](developer-console.png)
+The developer console provides a tool to change parameters at runtime (e.g. video parameters, color format, trackers). In *Video Profile Selection* each available resolution and frame rate provided by the [Locatable Camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera) are available for each color format (RGB/Grayscale).
+
+The *Tracker Selection* allows to switch between tracker of the [OpenCV Tracking API](https://docs.opencv.org/4.5.0/d9/df8/group__tracking.html) implemented by [OpenCVForUnity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088). Currently, these are *MOSSE*, *TLD*, *Boosting*, *Median Flow*, *MIL*, *CSRT*, *KCF*. *Note that some trackers only support a specific color format or are converting the image format internally, which impacts performance.*
+
+The following lists configurable scenarios and its purpose:
+
+- *Process Frame Sync:* The camera frame is processed synchronous. If calculations such as processing takes longer than the time budget (16ms at 60 FPS, 33ms at 30 FPS), this will cause a drop in application frame rate. If untoggled, frames are processed asynchronous, which can be helpful evaluating trackers that require more time to process. In both cases, only one camera frame is processed at a time.
+- *Detect On Repeat:* If enabled, tracking is ignored and detection is invoked repeatedly. The slider *Max Concurrent Detections* sets the limit for concurrent requests.
+- *Force Fixed Tracker Count:* This option initializes the detected object with the highest prediction multiple times. All other objects are ignored. The amount of clones can be specified using the slider *Tracker Count*. This options is used to measure performance across different trackers.
+
+The toolbar follows the users field of view until the position is fixed. It allows to trigger an object detection, reset the tracked objects, open the developer console, or quit the application.
 
 ### Notes regarding Software Architecture
 
-Scripts for visualization purpose, such as [Video Display Manager](Assets/LabVision/VideoDisplayManager.cs), [VisualizationManager](Assets/LabVision/VisualizationManager.cs), and the [Controller](Assets/LabVision/Controller.cs) are implemented as `MonoBehaviour` to enable support from the Unity Editor and position game objects in the scene. 
+Scripts for visualization purpose, such as [Video Display Manager](Assets/LabVision/VideoDisplayManager.cs), [Visualization Manager](Assets/LabVision/VisualizationManager.cs), and the [Controller](Assets/LabVision/Controller.cs) are implemented as [`MonoBehaviour`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) to enable support from the Unity Editor and position game objects in the scene.
 
-[MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity) is built in a modular approach, provides a service locator component, and centralized as much of the configuration required as possible. This component is configurable in the Unity Editor and manages component lifespans and code behaviors. Extension services are services that extend the functionality of the MRTK. After registration, the service is accessible using the MRTK service registry. See [this introduction](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/mrtk-getting-started) for an introduction into MRTK.
+[MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity) is built in a modular approach, provides a service locator component, and centralized as much of the configuration required as possible. This component is configurable in the Unity Editor and manages component lifespans and code behaviors. Extension services are services that extend the functionality of the [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity). After registration, the service is accessible using the [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity) service registry. See [this introduction](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/mrtk-getting-started) for an introduction into [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity).
 
-A [Camera Service](Assets/MixedRealityToolkit.Generated/Extensions/Camera/CameraService.cs), an [Object Detection Service](Assets/MixedRealityToolkit.Generated/Extensions/Detection/ObjectDetectionService.cs), and an [Object Tracking Service](Assets/MixedRealityToolkit.Generated/Extensions/Tracking/ObjectTracking.cs) are introduced as [MRTK extension service](https://microsoft.github.io/MixedRealityToolkit-Unity/Documentation/Extensions/ExtensionServices.html). The following lists the purpose and different implementations of the service.
+A [`CameraService`](Assets/MixedRealityToolkit.Generated/Extensions/Camera/ICameraService.cs), an [`ObjectDetectionService`](Assets/MixedRealityToolkit.Generated/Extensions/Detection/ObjectDetectionService.cs), and an [`ObjectTrackingService`](Assets/MixedRealityToolkit.Generated/Extensions/Tracking/ObjectTracking.cs) are introduced as [MRTK extension service](https://microsoft.github.io/MixedRealityToolkit-Unity/Documentation/Extensions/ExtensionServices.html). The following lists the purpose and different implementations of the services.
 
-- *[Camera Service](Assets/MixedRealityToolkit.Generated/Extensions/Camera/CameraService.cs):* Provides the camera frame depending on the platform. If running on the Microsoft HoloLens 2, the locatable camera is provided. Running in the Unity editor, the WebCam is used.
-- *[Object Detection Service](Assets/MixedRealityToolkit.Generated/Extensions/Detection/CustomVisionObjectDetectionService.cs):* Provides asynchronous object detection for a camera frame. Currently, Custom Vision as Cloud Service and an experimental local detection service using Barracuda are provided.
-- *[Object Tracking Service](Assets/MixedRealityToolkit.Generated/Extensions/Tracking/ObjectTrackingService.cs):* Provides markerless object tracking using OpenCV.
+- *[`CameraService`](Assets/MixedRealityToolkit.Generated/Extensions/Camera/CameraService.cs):* Provides the camera frame depending on the platform. If running on the Microsoft HoloLens 2, the locatable camera is provided. Running in the Unity Editor, the WebCam is used.
+- *[`CustomVisionObjectDetectionService`](Assets/MixedRealityToolkit.Generated/Extensions/Detection/CustomVisionObjectDetectionService.cs):* Provides asynchronous object detection for a camera frame. Currently, Custom Vision as Cloud Service and an experimental local detection service using Barracuda are provided.
+- *[`ObjectTrackingService`](Assets/MixedRealityToolkit.Generated/Extensions/Tracking/ObjectTrackingService.cs):* Provides markerless object tracking using OpenCV.
 
 ## License
 
-Lab Vision is open for use in compliance with the [MIT License](LICENSE). The grayscale shader for the video display is adapted from [HoloLensARTookit](https://github.com/qian256/HoloLensARToolKit), which is licensed under GNU Lesser General Public License v3.0.
+Lab Vision is open for use in compliance with the [MIT License](LICENSE). The [grayscale shader](Assets/LabVision/Shaders/Grayscale_MRTK.shader) for the video display and [FPSUtils](Assets/LabVision/Utils/FPSUtils.cs) for measurement originate from [HoloLensARTookit](https://github.com/qian256/HoloLensARToolKit) and are licensed under the GNU Lesser General Public License v3.0.
