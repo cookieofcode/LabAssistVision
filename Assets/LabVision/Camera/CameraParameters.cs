@@ -6,15 +6,29 @@ using System.Threading.Tasks;
 
 namespace LabVision
 {
+    /// <summary>
+    /// Provides the camera parameters including height, width and frame rate according to the selected profile.
+    /// </summary>
     public class CameraParameters
     {
+        /// <summary>
+        /// A valid height resolution for use with the camera.
+        /// </summary>
         public int CameraResolutionHeight;
+
+        /// <summary>
+        /// A valid width resolution for use with the camera.
+        /// </summary>
         public int CameraResolutionWidth;
+
+        /// <summary>
+        /// The frame rate at which to capture video.
+        /// </summary>
         public float FrameRate;
 
-        public CameraParameters(LocatableCameraProfile parameter)
+        public CameraParameters(LocatableCameraProfile profile)
         {
-            switch (parameter)
+            switch (profile)
             {
                 case LocatableCameraProfile.HL2_424x240_15:
                     CameraResolutionWidth = 424;
@@ -160,11 +174,10 @@ namespace LabVision
                     throw new ArgumentException("Parameter not supported");
             }
         }
-
     }
 
     /// <summary>
-    /// Supported camera profiles for the Locatable Camera of the Microsoft HoloLens 2. <see href="https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera"/>.
+    /// Supported camera profiles for the <see href="https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera">Locatable Camera of the Microsoft HoloLens 2</see>.
     /// </summary>
     public enum LocatableCameraProfile
     {
