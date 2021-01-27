@@ -32,7 +32,7 @@ jobs:
       - name: Cache Unity Setup Installers
         uses: actions/cache@v2.1.3
         with:
-          path: UnitySetupInstallerCache
+          path: D:\a\LabVision\LabVision\UnitySetupInstallerCache
           key: UnitySetupInstallerCache-${{ env.UNITY_VERSION }}
           
       - name: Install Unity
@@ -52,7 +52,7 @@ jobs:
       - name: Cache Unity
         uses: actions/cache@v2.1.3
         with:
-          path: .\Library
+          path: D:\a\LabVision\LabVision\Library
           key: UnityCache-${{ env.UNITY_VERSION }}  
       
       - name: Activate Unity License
