@@ -87,12 +87,10 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}  
         if: always()
-
-      # ensure that command is finished
-      - name: Sleep for 3 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '3s'
+      
+      - name: Wait for removal
+        run: Start-Sleep -s 5
+        shell: pwsh
         if: always()
       
       - name: Upload Unity Logs
