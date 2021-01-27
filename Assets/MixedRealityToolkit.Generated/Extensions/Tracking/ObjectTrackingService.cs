@@ -1,0 +1,176 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using JetBrains.Annotations;
+using LabVision;
+using Microsoft.MixedReality.Toolkit.Utilities;
+using OpenCVForUnity.CoreModule;
+using UnityEngine;
+using UnityEngine.Assertions;
+using Debug = UnityEngine.Debug;
+
+namespace Microsoft.MixedReality.Toolkit.Extensions
+{
+    [MixedRealityExtensionService(SupportedPlatforms.WindowsStandalone | SupportedPlatforms.WindowsUniversal)]
+    public class ObjectTrackingService : BaseExtensionService, IObjectTrackingService, IMixedRealityExtensionService
+    {
+        public List<TrackedObject> TrackedObjects => new List<TrackedObject>(_trackedObjects);
+        protected IObjectTracker ObjectTracker;
+        private readonly ObjectTrackingServiceProfile _objectTrackingServiceProfile;
+        private List<TrackedObject> _trackedObjects = new List<TrackedObject>();
+        private readonly Logger _logger;
+
+        // TODO: Measurement
+        //private string path;
+        //public TextWriter writer;
+
+        public ObjectTrackingService(string name, uint priority, BaseMixedRealityProfile profile) : base(name, priority, profile)
+        {
+            if (profile == null) throw new ArgumentNullException(nameof(profile));
+            _objectTrackingServiceProfile = profile as ObjectTrackingServiceProfile;
+            if (_objectTrackingServiceProfile == null) throw new ArgumentNullException(nameof(_objectTrackingServiceProfile));
+            Initialize(_objectTrackingServiceProfile.tracker);
+
+            _logger = new Logger(new LogHandler());
+            Assert.IsNotNull(_logger);
+            // TODO: Measurement
+            //Debug.Log($"Writing ObjectTrackingService Measurements to {Application.persistentDataPath}");
+            //path = Path.Combine(Application.persistentDataPath, "ObjectTrackingService-" + DateTime.Now.ToFileTimeUtc() + ".csv");
+            //writer = File.CreateText(path);
+            //writer.WriteLine("timeofday,renderms,videoms,trackms,trackercount,stopwatch,ticks,msfromticks,height,width");
+        }
+
+        private void Initialize(Tracker tracker)
+        {
+            switch (tracker)
+            {
+                case Tracker.MosseTracker:
+                    ObjectTracker = new MosseTracker();
+                    break;
+                case Tracker.KCFTracker:
+                    ObjectTracker = new KCFTracker();
+                    break;
+                case Tracker.BoostingTracker:
+                    ObjectTracker = new BoostingTracker();
+                    break;
+                case Tracker.CSRTTracker:
+                    ObjectTracker = new CSRTTracker();
+                    break;
+                case Tracker.MedianFlowTracker:
+                    ObjectTracker = new MedianFlowTracker();
+                    break;
+                case Tracker.TLDTracker:
+                    ObjectTracker = new TLDTracker();
+                    break;
+                case Tracker.MILTracker:
+                    ObjectTracker = new MILTracker();
+                    break;
+                case Tracker.TestTracker:
+                    ObjectTracker = new CamShiftTracker();
+                    break;
+                default:
+                    throw new ArgumentException("Tracker not implemented");
+            }
+        }
+
+        public void SwitchTracker(Tracker tracker)
+        {
+            ObjectTracker.Reset();
+            _trackedObjects = new List<TrackedObject>();
+            Initialize(tracker);
+        }
+
+        public override void Reset()
+        {
+            // writer.Flush();
+            ObjectTracker.Reset();
+            _trackedObjects = new List<TrackedObject>();
+            base.Reset();
+        }
+
+        public override void Destroy()
+        {
+            //writer.Flush();
+            // writer.Dispose();
+            base.Destroy();
+        }
+
+        public Vector2 unprojectionOffset => _objectTrackingServiceProfile.unprojectionOffset;
+
+        public int fixedTrackerCount => _objectTrackingServiceProfile.fixedTrackerCount;
+        public bool forceFixedTrackerCount => _objectTrackingServiceProfile.forceFixedTrackerCount;
+        public void ToggleFixedTrackerCount()
+        {
+            _objectTrackingServiceProfile.forceFixedTrackerCount = !_objectTrackingServiceProfile.forceFixedTrackerCount;
+            Debug.Log($"Switched force fixed tracker count to {_objectTrackingServiceProfile.forceFixedTrackerCount}");
+        }
+
+        public void ChangeFixedTrackerCount(int value)
+        {
+            _objectTrackingServiceProfile.fixedTrackerCount = value;
+        }
+
+        private Stopwatch stopWatch = new Stopwatch();
+
+        public List<TrackedObject> TrackSync(CameraFrame frame)
+        {
+            if (frame == null) throw new ArgumentNullException(nameof(frame));
+            stopWatch.Reset();
+            stopWatch.Start();
+            List<TrackedObject> trackedObjects = ObjectTracker.Update(frame);
+            stopWatch.Stop();
+            FPSUtils.TrackTick();
+            // TODO: Measurement
+            //writer.WriteLine($"{DateTime.Now.TimeOfDay.TotalMilliseconds},{FPSUtils.GetRenderDeltaTime()},{FPSUtils.GetVideoDeltaTime()},{FPSUtils.GetTrackDeltaTime()},{trackedObjects.Count},{stopWatch.ElapsedMilliseconds},{stopWatch.ElapsedTicks},{TimeSpan.FromTicks(stopWatch.ElapsedTicks).TotalMilliseconds},{frame.Height},{frame.Width}");
+            //writer.WriteLine($"{FPSUtils.GetRenderDeltaTime()},{FPSUtils.GetVideoDeltaTime()},{FPSUtils.GetTrackDeltaTime()},{trackedObjects.Count},{stopWatch.ElapsedMilliseconds}");
+            _trackedObjects = trackedObjects;
+            return trackedObjects;
+        }
+
+        public List<TrackedObject> InitializeTrackers(List<DetectedObject> detectedObjects)
+        {
+            if (detectedObjects == null) throw new ArgumentNullException(nameof(detectedObjects));
+            List<TrackedObject> trackedObjects = new List<TrackedObject>();
+            if (_objectTrackingServiceProfile.forceFixedTrackerCount)
+            {
+                Debug.Log("Initializing trackers using fixed amount of trackers. Selecting Detection with highest probability");
+                DetectedObject detectedObject = detectedObjects.OrderByDescending(o => o.Probability).FirstOrDefault();
+                if (detectedObject == null)
+                {
+                    _logger.LogWarning("No object detected.");
+                    return trackedObjects;
+                }
+
+                List<DetectedObject> clones = new List<DetectedObject>();
+                for (int i = 0; i < fixedTrackerCount; i++)
+                {
+                    clones.Add(new DetectedObject(detectedObject));
+                }
+                trackedObjects.AddRange(clones.Select(InitializeTracker));
+            }
+            else
+            {
+                trackedObjects.AddRange(detectedObjects.Select(InitializeTracker));
+            }
+            _trackedObjects = trackedObjects;
+            return trackedObjects;
+        }
+
+        [NotNull]
+        private TrackedObject InitializeTracker([NotNull] CameraFrame frame, [NotNull] Rect2d rect, [NotNull] string label)
+        {
+            if (frame == null) throw new ArgumentNullException(nameof(frame));
+            if (rect == null) throw new ArgumentNullException(nameof(rect));
+            if (label == null) throw new ArgumentNullException(nameof(label));
+            return ObjectTracker.Initialize(frame, rect, label);
+        }
+
+        [NotNull]
+        private TrackedObject InitializeTracker([NotNull] DetectedObject detectedObject)
+        {
+            if (detectedObject == null) throw new ArgumentNullException(nameof(detectedObject));
+            return InitializeTracker(detectedObject.Frame, detectedObject.Rect, detectedObject.Label);
+        }
+    }
+}

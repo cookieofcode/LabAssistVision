@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76edeaa3f2042af4e85b1ff98831a865, type: 3}
+  m_Name: DefaultCameraServiceProfile
+  m_EditorClassIdentifier: 
+  isCustomProfile: 1
+  locatableCameraProfile: 22
+  rgbShader: {fileID: 4800000, guid: dc0f9301db629694ea43debb1b84e28b, type: 3}
+  luminanceShader: {fileID: 4800000, guid: 6c95dded497f24a48b9ccbc6be66b190, type: 3}
+  format: 0

@@ -58,3 +58,6 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# OpenCVForUnity (https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088)
+/[Aa]ssets/OpenCVForUnity/
+
