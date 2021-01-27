@@ -9,7 +9,8 @@ This work is part of the thesis "Mixed Reality Task Assistance for Pharmaceutica
 *Lab Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware).
 
 [![A demonstration video is available at: https://youtu.be/ru2a367seSQ](./teaser.gif)](https://youtu.be/ru2a367seSQ)
-*A demonstration video in full length is available at: https://youtu.be/ru2a367seSQ*
+
+A demonstration video in full length is available at: https://youtu.be/ru2a367seSQ
 
 ### Key Features
 
@@ -103,8 +104,8 @@ Scripts for visualization purpose, such as [Video Display Manager](Assets/LabVis
 A [Camera Service](Assets/MixedRealityToolkit.Generated/Extensions/Camera/CameraService.cs), an [Object Detection Service](Assets/MixedRealityToolkit.Generated/Extensions/Detection/ObjectDetectionService.cs), and an [Object Tracking Service](Assets/MixedRealityToolkit.Generated/Extensions/Tracking/ObjectTracking.cs) are introduced as [MRTK extension service](https://microsoft.github.io/MixedRealityToolkit-Unity/Documentation/Extensions/ExtensionServices.html). The following lists the purpose and different implementations of the service.
 
 - *[Camera Service](Assets/MixedRealityToolkit.Generated/Extensions/Camera/CameraService.cs):* Provides the camera frame depending on the platform. If running on the Microsoft HoloLens 2, the locatable camera is provided (see \ref{sec:camera}). Running in the \gls{unity} editor, the integrated camera (webcam) is used.
-- *[Object Detection Service](Assets/MixedRealityToolkit.Generated/Extensions/Detection/ObjectDetectionService.cs):* Provides asynchronous object detection for a camera frame. Currently, Custom Vision as Cloud Service and an experimental local detection service using Barracuda are provided.
-- *[Object Tracking Service](Assets/MixedRealityToolkit.Generated/Extensions/Tracking/ObjectTracking.cs):* Provides markerless object tracking using OpenCV.
+- *[Object Detection Service](Assets/MixedRealityToolkit.Generated/Extensions/Detection/CustomVisionObjectDetectionService.cs):* Provides asynchronous object detection for a camera frame. Currently, Custom Vision as Cloud Service and an experimental local detection service using Barracuda are provided.
+- *[Object Tracking Service](Assets/MixedRealityToolkit.Generated/Extensions/Tracking/ObjectTrackingService.cs):* Provides markerless object tracking using OpenCV.
 
 ## License
 
