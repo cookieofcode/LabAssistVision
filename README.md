@@ -2,7 +2,7 @@
 
 Proof of concept of a mixed reality application for the Microsoft HoloLens 2 integrating object recognition using cloud computing and real-time on-device markerless object tracking. The augmented objects provide interaction using hand input, eye-gaze, and voice commands to visually verify the tracking result.
 
-This work is part of the thesis "Mixed Reality Task Assistance for Pharmaceutical Laboratories using Markerless Object Tracking and Cloud Services" submitted to the [University of Applied Sciences Northwestern Switzerland](https://www.fhnw.ch).
+This work is part of the thesis "*Mixed Reality Task Assistance for Pharmaceutical Laboratories using Markerless Object Tracking and Cloud Services*" submitted to the [University of Applied Sciences Northwestern Switzerland](https://www.fhnw.ch) at the [Institute for Interactive Technologies (IIT)](https://www.fhnw.ch/en/about-fhnw/schools/school-of-engineering/institutes/institute-for-interactive-technologies).
 
 Author: [Severin Pereto (cookieofcode)](https://github.com/cookieofcode)\
 Supervisor: [Prof. Dr. Doris Agotai](https://www.fhnw.ch/de/personen/doris-agotai)
@@ -38,11 +38,7 @@ A demonstration video in full length is available at: https://youtu.be/ru2a367se
 
 ### Setup
 
-#### Prerequirements
-
-A pretrained Custom Vision network including a prediction endpoint and key is required.
-
-Lab Vision requires [OpenCVForUnity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088) and a pretrained [Custom Vision](https://www.customvision.ai) prediction API. The following steps are required after cloning to setup the project:
+*Lab Vision requires [OpenCVForUnity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088) and a pretrained [Custom Vision](https://www.customvision.ai) network including prediction endpoint and key.* The following gives a step-by-step instruction to setup the project:
 
 1. Open the project (e.g. in the Unity Hub) with Unity Version 2019.4.15f1. *Note: Another Unity version may requires adjustments or API updates*
 
@@ -91,6 +87,7 @@ Ensure that the following settings are configured in Unity:
 ### Build
 
 - Build the Project using ARM64 (Debug/Release). *Note that running in Debug mode has high impact on performance*.
+- It is recommended to disable the Video Display (in the Unity Editor) if not used for development, as it has an impact on tracking performance.
 
 ### Development
 
