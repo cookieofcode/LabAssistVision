@@ -20,8 +20,8 @@ namespace LabVision
 
         private int _targetVideoWidth, _targetVideoHeight;
         public int paddedFrameWidth;
-        public int frameHeight { get; set; }
-        public int frameWidth { get; set; }
+        public int FrameHeight { get; set; }
+        public int FrameWidth { get; set; }
 
 
         private bool _available;
@@ -69,10 +69,10 @@ namespace LabVision
             _logger.Log($"Selected {device.name}");
             //Debug.LogFormat("Available resolutions: {0}", string.Join(", ", devices[0].availableResolutions));
 
-            frameWidth = Convert.ToInt32(_targetVideoWidth);
-            frameHeight = Convert.ToInt32(_targetVideoHeight);
+            FrameWidth = Convert.ToInt32(_targetVideoWidth);
+            FrameHeight = Convert.ToInt32(_targetVideoHeight);
 
-            CameraInitializedEventArgs args = new CameraInitializedEventArgs(frameWidth, frameHeight, ColorFormat.Unknown);
+            CameraInitializedEventArgs args = new CameraInitializedEventArgs(FrameWidth, FrameHeight, ColorFormat.Unknown);
             CameraInitialized?.Invoke(this, args);
             return await Task.FromResult(true);
         }

@@ -21,8 +21,8 @@ namespace LabVision
     {
         private int _targetVideoWidth, _targetVideoHeight;
         public int paddedFrameWidth;
-        public int frameHeight { get; set; }
-        public int frameWidth { get; set; }
+        public int FrameHeight { get; set; }
+        public int FrameWidth { get; set; }
         private bool _available;
 
         // ReSharper disable once NotNullMemberIsNotInitialized
@@ -49,9 +49,9 @@ namespace LabVision
             _videoPlayer.isLooping = true; // Restart from beginning when done.
             _targetVideoWidth = 1280;
             _targetVideoHeight = 720;
-            frameWidth = Convert.ToInt32(_targetVideoWidth);
-            frameHeight = Convert.ToInt32(_targetVideoHeight);
-            CameraInitialized?.Invoke(this, new CameraInitializedEventArgs(frameWidth, frameHeight, ColorFormat.Unknown));
+            FrameWidth = Convert.ToInt32(_targetVideoWidth);
+            FrameHeight = Convert.ToInt32(_targetVideoHeight);
+            CameraInitialized?.Invoke(this, new CameraInitializedEventArgs(FrameWidth, FrameHeight, ColorFormat.Unknown));
             return await Task.FromResult(true);
         }
 

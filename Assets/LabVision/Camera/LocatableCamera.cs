@@ -49,8 +49,8 @@ namespace LabVision
         public event EventHandler<FrameArrivedEventArgs> FrameArrived;
         public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
         public int FrameCount;
-        public int frameHeight { get; set; }
-        public int frameWidth { get; set; }
+        public int FrameHeight { get; set; }
+        public int FrameWidth { get; set; }
         #endregion
 
         #region Internal Methods
@@ -190,11 +190,11 @@ namespace LabVision
                 _frameReader = await _mediaCapture.CreateFrameReaderAsync(source, format.Subtype);
                 _frameReader.FrameArrived += OnFrameArrived;
 
-                frameWidth = Convert.ToInt32(format.VideoFormat.Width);
-                frameHeight = Convert.ToInt32(format.VideoFormat.Height);
-                frameWidth = PadTo64(frameWidth);
+                FrameWidth = Convert.ToInt32(format.VideoFormat.Width);
+                FrameHeight = Convert.ToInt32(format.VideoFormat.Height);
+                FrameWidth = PadTo64(FrameWidth);
 
-                _logger.Log($"FrameReader is successfully initialized, {frameWidth} x {frameHeight}, frame rate: {format.FrameRate.Numerator} / {format.FrameRate.Denominator}, color format: {_format}");
+                _logger.Log($"FrameReader is successfully initialized, {FrameWidth} x {FrameHeight}, frame rate: {format.FrameRate.Numerator} / {format.FrameRate.Denominator}, color format: {_format}");
             }
             catch (Exception exception)
             {
@@ -212,9 +212,9 @@ namespace LabVision
         private void InitializeBitmap()
         {
             if (_frameReader == null) throw new InvalidOperationException("Frame Reader must be initialized before creating bitmap.");
-            int height = frameHeight;
-            if (_format != ColorFormat.Grayscale) height = frameHeight * 3 / 2;
-            _bitmap = new Mat(height, frameWidth, CvType.CV_8UC1);
+            int height = FrameHeight;
+            if (_format != ColorFormat.Grayscale) height = FrameHeight * 3 / 2;
+            _bitmap = new Mat(height, FrameWidth, CvType.CV_8UC1);
         }
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace LabVision
                     int thisFrameCount = Interlocked.Increment(ref FrameCount);
 
                     // TODO: Check out of using block
-                    CameraFrame cameraFrame = new CameraFrame(_bitmap, intrinsic, extrinsic, frameWidth, frameHeight, (uint)thisFrameCount, _format);
+                    CameraFrame cameraFrame = new CameraFrame(_bitmap, intrinsic, extrinsic, FrameWidth, FrameHeight, (uint)thisFrameCount, _format);
                     FrameArrivedEventArgs eventArgs = new FrameArrivedEventArgs(cameraFrame);
                     FrameArrived?.Invoke(this, eventArgs);
                 }
@@ -318,7 +318,7 @@ namespace LabVision
         {
 #if ENABLE_WINMD_SUPPORT
             bool initialized = await InitializeMediaCaptureAsyncTask();
-            CameraInitializedEventArgs args = new CameraInitializedEventArgs(frameWidth, frameHeight, _format);
+            CameraInitializedEventArgs args = new CameraInitializedEventArgs(FrameWidth, FrameHeight, _format);
             CameraInitialized?.Invoke(this, args);
             return initialized;
 #else

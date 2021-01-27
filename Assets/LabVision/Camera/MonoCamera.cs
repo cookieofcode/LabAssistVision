@@ -15,8 +15,8 @@ namespace LabVision
     /// </summary>
     public class MonoCamera : ICamera
     {
-        public int frameWidth { get; set; }
-        public int frameHeight { get; set; }
+        public int FrameWidth { get; set; }
+        public int FrameHeight { get; set; }
 
         public event EventHandler<FrameArrivedEventArgs> FrameArrived;
         public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
@@ -37,16 +37,16 @@ namespace LabVision
         public Task<bool> Initialize()
         {
             _cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
-            frameHeight = _cameraResolution.height;
-            frameWidth = _cameraResolution.width;
-            CameraInitializedEventArgs a = new CameraInitializedEventArgs(frameWidth, frameHeight, _format);
+            FrameHeight = _cameraResolution.height;
+            FrameWidth = _cameraResolution.width;
+            CameraInitializedEventArgs a = new CameraInitializedEventArgs(FrameWidth, FrameHeight, _format);
             CameraInitialized?.Invoke(this, a);
             return Task.FromResult(true);
         }
 
         public Task<bool> StartCapture()
         {
-            if (frameHeight == 0 && frameWidth == 0)
+            if (FrameHeight == 0 && FrameWidth == 0)
             {
                 Debug.LogError("StartCapture() invoked before camera initialized.");
                 return Task.FromResult(false);
@@ -57,8 +57,8 @@ namespace LabVision
                 UnityEngine.Windows.WebCam.CameraParameters cameraParameters = new UnityEngine.Windows.WebCam.CameraParameters
                 {
                     hologramOpacity = 0.0f,
-                    cameraResolutionWidth = frameWidth,
-                    cameraResolutionHeight = frameHeight,
+                    cameraResolutionWidth = FrameWidth,
+                    cameraResolutionHeight = FrameHeight,
                     pixelFormat = CapturePixelFormat.NV12
                 };
 
@@ -75,7 +75,7 @@ namespace LabVision
             if (_stopped?.Task != null) return;
             if (result.resultType == PhotoCapture.CaptureResultType.UnknownError) return;
             if (photoCaptureFrame == null) return;
-            Size size = new Size(frameWidth, (double)frameHeight * 3 / 2);
+            Size size = new Size(FrameWidth, (double)FrameHeight * 3 / 2);
             _image = new Mat(size, CvType.CV_8UC1);
             List<byte> imageBuffer = new List<byte>();
             photoCaptureFrame?.CopyRawImageDataIntoBuffer(imageBuffer);
@@ -94,7 +94,7 @@ namespace LabVision
             photoCaptureFrame?.TryGetProjectionMatrix(out projectionMatrix);
             CameraIntrinsic intrinsic = new CameraIntrinsic(projectionMatrix);
 
-            CameraFrame cameraFrame = new CameraFrame(_image, intrinsic, extrinsic, frameWidth, frameHeight, frameCount++, _format);
+            CameraFrame cameraFrame = new CameraFrame(_image, intrinsic, extrinsic, FrameWidth, FrameHeight, frameCount++, _format);
             FrameArrivedEventArgs args = new FrameArrivedEventArgs(cameraFrame);
             FrameArrived?.Invoke(this, args);
 

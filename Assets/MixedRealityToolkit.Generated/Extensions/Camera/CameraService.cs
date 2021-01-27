@@ -21,8 +21,8 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
         #region Member Variables
         public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
         public event EventHandler<FrameArrivedEventArgs> FrameArrived;
-        public int FrameWidth => _camera.frameWidth;
-        public int FrameHeight => _camera.frameHeight;
+        public int FrameWidth => _camera.FrameWidth;
+        public int FrameHeight => _camera.FrameHeight;
         public uint FrameCount = int.MaxValue;
         public bool Initialized { get; set; }
         public ColorFormat Format => _cameraServiceProfile.format;

@@ -8,11 +8,17 @@ namespace LabVision
     /// </summary>
     public class DummyCamera : ICamera
     {
+        public DummyCamera(int frameWidth, int frameHeight)
+        {
+            FrameWidth = frameWidth;
+            this.FrameHeight = frameHeight;
+        }
+
         public event EventHandler<FrameArrivedEventArgs> FrameArrived;
         public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
 
-        public int frameWidth { get; }
-        public int frameHeight { get; }
+        public int FrameWidth { get; }
+        public int FrameHeight { get; }
 
         public async Task<bool> Initialize()
         {
