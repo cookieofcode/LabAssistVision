@@ -17,12 +17,9 @@ namespace LabVision
     [DisallowMultipleComponent]
     public class VisualizationManager : MonoBehaviour
     {
-        // ReSharper disable once NotNullMemberIsNotInitialized
-        [NotNull] private Logger _logger;
-
-        // ReSharper disable once NotNullMemberIsNotInitialized
-        [NotNull] private List<SpatialTrackedObject> _spatialTrackedObjects;
-        private List<Label> _tooltips;
+        [NotNull] private readonly Logger _logger = new Logger(new LogHandler());
+        [NotNull] private List<SpatialTrackedObject> _spatialTrackedObjects = new List<SpatialTrackedObject>();
+        private List<Label> _tooltips = new List<Label>();
 
         /// <summary>
         /// Indicates if tracked objects should be simulated. This option is for debug purposes, if no tracked objects are available.
@@ -34,28 +31,21 @@ namespace LabVision
         /// Holds simulated tracked objects configurable in the Unity Editor.
         /// </summary>
         [Tooltip("Configure the position of simulated tracked objects. Simulating tracked objects must be enabled.")]
-        [NotNull] public List<Vector3> simulatedTrackedObjects;
+        [NotNull] public List<Vector3> simulatedTrackedObjects = new List<Vector3>();
 
         /// <summary>
         /// The <see cref="Label"/> containing the tooltip to visualize a <see cref="TrackedObject"/>.
         /// </summary>
         public Label tooltipPrefab;
 
-        // TODO: https://localjoost.github.io/migrating-to-mrtk2interacting-with/
-        private const int SPATIAL_AWARENESS_LAYER_MASK = 1 << 31;
+        // TODO: Check https://localjoost.github.io/migrating-to-mrtk2interacting-with/
+        private const int SpatialAwarenessLayerMask = 1 << 31;
 
         public void Start()
         {
-            _logger = new Logger(new LogHandler());
             Assert.IsNotNull(_logger, "_logger != null");
-
-            _spatialTrackedObjects = new List<SpatialTrackedObject>();
             Assert.IsNotNull(_spatialTrackedObjects, "_spatialTrackedObjects != null");
-
-            _tooltips = new List<Label>();
-            Assert.IsNotNull(_spatialTrackedObjects, "_tooltips != null");
-
-            simulatedTrackedObjects = new List<Vector3>();
+            Assert.IsNotNull(_tooltips, "_tooltips != null");
             Assert.IsNotNull(simulatedTrackedObjects);
         }
 
@@ -154,7 +144,7 @@ namespace LabVision
         /// </summary>
         /// <param name="cameraPosition">The camera extrinsic</param>
         /// <param name="layForward">The forward vector of the camera</param>
-        /// <returns></returns>
+        /// <returns>The position in the world</returns>
         public Vector3 GetPosition(Vector3 cameraPosition, Vector3 layForward)
         {
             if (!Microsoft.MixedReality.Toolkit.Utilities.SyncContextUtility.IsMainThread)
@@ -164,7 +154,7 @@ namespace LabVision
             }
 
             RaycastHit hit;
-            if (!Physics.Raycast(cameraPosition, layForward * -1f, out hit, Mathf.Infinity, SPATIAL_AWARENESS_LAYER_MASK)) // TODO: Check -1
+            if (!Physics.Raycast(cameraPosition, layForward * -1f, out hit, Mathf.Infinity, SpatialAwarenessLayerMask)) // TODO: Check -1
             {
 #if ENABLE_WINMD_SUPPORT
                 Debug.LogWarning("Raycast failed. Probably no spatial mesh provided.");
