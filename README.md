@@ -11,9 +11,9 @@ Supervisor: [Prof. Dr. Doris Agotai](https://www.fhnw.ch/de/personen/doris-agota
 
 *Lab Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware). By using the voice command *"Detect"*, objects are recognized by a cloud service to initialize markerless tracking on the device. The tracked objects can be confirmed by directly looking at the object (eye gaze) and the voice command *"Okay"* to change the color of the tooltip.
 
-[![Image of demonstration not loaded yet. See the demonstration video below.](./teaser.gif)](https://youtu.be/ru2a367seSQ)
+[![Image of demonstration not loaded yet. See the demonstration video below.](./teaser.gif)](https://youtu.be/-usFovY6nD8)
 
-A demonstration video in full length is available at: https://youtu.be/ru2a367seSQ
+A demonstration video in full length is available at: https://youtu.be/-usFovY6nD8
 
 ### Key Features
 
