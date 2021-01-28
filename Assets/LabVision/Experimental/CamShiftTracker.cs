@@ -12,8 +12,11 @@ using Rect = OpenCVForUnity.CoreModule.Rect;
 
 namespace LabVision
 {
-    // Mean Shift Tracker from: https://docs.opencv.org/4.5.0/d7/d00/tutorial_meanshift.html.
-    // Warning: Requires to override methods in Tracker, add virtual to class files.
+    /// <summary>
+    /// Experimental. Mean Shift Tracker from: https://docs.opencv.org/4.5.0/d7/d00/tutorial_meanshift.html.
+    /// Warning: Requires to override methods in Tracker, add virtual to class files.
+    /// </summary>
+    /*
     public class CamShiftTracker : CvTracker
     {
 
@@ -107,6 +110,5 @@ namespace LabVision
             return true;
         }
     }
-
-
+    */
 }
