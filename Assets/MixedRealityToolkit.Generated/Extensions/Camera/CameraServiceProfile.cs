@@ -1,5 +1,5 @@
 using System;
-using LabVision;
+using LabAssistVision;
 using UnityEngine;
 
 namespace Microsoft.MixedReality.Toolkit.Extensions

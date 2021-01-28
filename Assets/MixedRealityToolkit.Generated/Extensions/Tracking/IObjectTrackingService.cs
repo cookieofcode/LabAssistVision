@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using LabVision;
+using LabAssistVision;
 using UnityEngine;
 
 namespace Microsoft.MixedReality.Toolkit.Extensions

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using LabVision;
+using LabAssistVision;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using OpenCVForUnity.CoreModule;
 using UnityEngine;

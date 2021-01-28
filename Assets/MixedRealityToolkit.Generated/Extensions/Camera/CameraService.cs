@@ -3,7 +3,7 @@ using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using LabVision;
+using LabAssistVision;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using Microsoft.Unity;
 using OpenCVForUnity.CoreModule;
