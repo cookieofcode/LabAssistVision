@@ -26,15 +26,16 @@ namespace LabVision
     public class LocatableCamera : ICamera
     {
         #region Member Variables
+        private const string locatableCameraDisplayName = "QC Back Camera";
         public event EventHandler<FrameArrivedEventArgs> FrameArrived;
         public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
         public int FrameCount;
         public int FrameHeight { get; set; }
         public int FrameWidth { get; set; }
         [NotNull] private readonly Logger _logger;
-        private Device _device = Device.HoloLens2;
         private readonly LocatableCameraProfile _cameraProfile;
         private readonly ColorFormat _format;
+        private readonly Device _device = Device.HoloLens2;
         [CanBeNull] private Mat _bitmap;
         #endregion // Member Variables
 
@@ -49,11 +50,10 @@ namespace LabVision
             _logger = new Logger(new LogHandler());
             Assert.IsNotNull(_logger, "_logger != null");
 #if ENABLE_WINMD_SUPPORT
-            Assert.IsNotNull(worldOrigin, "worldOrigin != null");
+            Assert.IsNotNull(WorldOrigin, "worldOrigin != null");
 #endif
         }
         #endregion // Constructor
-
 
         #region Internal Methods
         /// <summary>
@@ -77,7 +77,7 @@ namespace LabVision
         private MediaCapture _mediaCapture;
         private MediaFrameReader _frameReader;
         private SpatialCoordinateSystem _worldOrigin;
-        private SpatialCoordinateSystem worldOrigin
+        private SpatialCoordinateSystem WorldOrigin
         {
             get
             {
@@ -92,19 +92,24 @@ namespace LabVision
         private static SpatialCoordinateSystem CreateWorldOrigin()
         {
             //IntPtr worldOriginPtr = Microsoft.MixedReality.Toolkit.WindowsMixedReality.WindowsMixedRealityUtilities.UtilitiesProvider.ISpatialCoordinateSystemPtr;
+            //WinRTExtensions.GetSpatialCoordinateSystem(coordinateSystemPtr); // https://github.com/microsoft/MixedReality-SpectatorView/blob/7796da6acb0ae41bed1b9e0e9d1c5c683b4b8374/src/SpectatorView.Unity/Assets/PhotoCapture/Scripts/WinRTExtensions.cs#L20
             IntPtr worldOriginPtr = WorldManager.GetNativeISpatialCoordinateSystemPtr();
-            if (worldOriginPtr == null) throw new ArgumentException("World origin pointer is null");
             return RetrieveWorldOriginFromPointer(worldOriginPtr);
         }
 
         private static SpatialCoordinateSystem RetrieveWorldOriginFromPointer(IntPtr worldOriginPtr)
         {
+            if (worldOriginPtr == IntPtr.Zero) throw new ArgumentException("World origin pointer is zero");
             SpatialCoordinateSystem spatialCoordinateSystem = Marshal.GetObjectForIUnknown(worldOriginPtr) as SpatialCoordinateSystem;
             if (spatialCoordinateSystem == null) throw new InvalidCastException("Failed to retrieve world origin from pointer");
             return spatialCoordinateSystem;
         }
 
-        private async Task<MediaFrameSourceGroup> SelectGroup(string displayName)
+        /// <summary>
+        /// Retrieves the <see cref="MediaFrameSourceGroup">source group</see> using the display name of the camera.
+        /// Defaults to the world-facing color camera of the HoloLens 2.
+        /// </summary>
+        private async Task<MediaFrameSourceGroup> SelectGroup(string displayName = locatableCameraDisplayName)
         {
             IReadOnlyList<MediaFrameSourceGroup> groups = await MediaFrameSourceGroup.FindAllAsync();
             foreach (MediaFrameSourceGroup group in groups)
@@ -116,12 +121,20 @@ namespace LabVision
             throw new ArgumentException($"No source group for display name {displayName} found.");
         }
 
-        private async Task<string> GetDeviceId(string displayName)
+        /// <summary>
+        /// Retrieve the device id from the display name. Defaults to the world-facing color camera of the HoloLens 2.
+        /// </summary>
+        /// <param name="displayName"></param>
+        /// <returns></returns>
+        private async Task<string> GetDeviceId(string displayName = locatableCameraDisplayName)
         {
             MediaFrameSourceGroup group = await SelectGroup(displayName);
             return group.Id;
         }
 
+        /// <summary>
+        /// Initializes <see cref="MediaCapture"/> to use the world-facing locatable color camera.
+        /// </summary>
         private async Task<bool> InitializeMediaCapture()
         {
             if (_mediaCapture != null)
@@ -131,8 +144,7 @@ namespace LabVision
             }
             if (_device != Device.HoloLens2) throw new InvalidOperationException("Device not supported.");
 
-            const string locatableCameraDisplayName = "QC Back Camera";
-            string deviceId = await GetDeviceId(locatableCameraDisplayName);
+            string deviceId = await GetDeviceId();
             IReadOnlyList<MediaCaptureVideoProfile> profiles = MediaCapture.FindKnownVideoProfiles(deviceId, KnownVideoProfile.VideoConferencing);
             MediaCaptureInitializationSettings settings = new MediaCaptureInitializationSettings
             {
@@ -143,6 +155,7 @@ namespace LabVision
                 // See <see href="https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/mixed-reality-capture-for-developers"/>
                 SharingMode = MediaCaptureSharingMode.ExclusiveControl,
                 StreamingCaptureMode = StreamingCaptureMode.Video,
+                // TODO: For RGB conversion, the MediaCaptureMemoryPreference.Auto could provide a Direct3DSurface instead of a SoftwareBitmap.
                 MemoryPreference = MediaCaptureMemoryPreference.Cpu
             };
             _mediaCapture = new MediaCapture();
@@ -151,6 +164,10 @@ namespace LabVision
             return true;
         }
 
+        /// <summary>
+        /// Retrieves the target format specified in <see cref="CameraParameters"/> from the <see cref="MediaFrameSource">frame source</see>.
+        /// </summary>
+        /// <returns></returns>
         private MediaFrameFormat GetTargetFormat(MediaFrameSource frameSource, CameraParameters parameters)
         {
             MediaFrameFormat preferredFormat = frameSource.SupportedFormats.FirstOrDefault(format => CompareFormat(format, parameters));
@@ -160,6 +177,10 @@ namespace LabVision
             return preferredFormat;
         }
 
+        /// <summary>
+        /// Compares the target format specified in <see cref="CameraParameters"/> with a format.
+        /// </summary>
+        /// <returns>If the format is considered equal</returns>
         // adapted from https://github.com/microsoft/MixedReality-SpectatorView/blob/master/src/SpectatorView.Unity/Assets/PhotoCapture/Scripts/HoloLensCamera.cs
         private bool CompareFormat(MediaFrameFormat format, CameraParameters parameters)
         {
@@ -170,6 +191,10 @@ namespace LabVision
             return (width && height && frameRate);
         }
 
+        /// <summary>
+        /// Creates the frame reader using the target format and registers the <see cref="OnFrameArrived"/> event. The width is padded to be divisibly by 64.
+        /// </summary>
+        /// <returns></returns>
         private async Task<bool> CreateFrameReader()
         {
             const MediaStreamType mediaStreamType = MediaStreamType.VideoRecord;
@@ -187,11 +212,11 @@ namespace LabVision
                 FrameHeight = Convert.ToInt32(format.VideoFormat.Height);
                 FrameWidth = PadTo64(FrameWidth);
 
-                _logger.Log($"FrameReader is successfully initialized, {FrameWidth} x {FrameHeight}, frame rate: {format.FrameRate.Numerator} / {format.FrameRate.Denominator}, color format: {_format}");
+                _logger.Log($"FrameReader initialized using {FrameWidth} x {FrameHeight}, frame rate: {format.FrameRate.Numerator} / {format.FrameRate.Denominator}, color format: {_format}");
             }
             catch (Exception exception)
             {
-                _logger.LogError("FrameReader is not initialized");
+                _logger.LogError("Frame Reader could not be initialized");
                 _logger.LogException(exception);
                 return false;
             }
@@ -200,7 +225,7 @@ namespace LabVision
         }
 
         /// <summary>
-        /// Initializes the bitmap holding the camera image. Luminance (gray scale) of the NV12 format requires image height, chrominance is stored in half resolution. <see href="https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12"/>.
+        /// Initializes the bitmap holding the camera image. Luminance (grayscale) of the NV12 format requires image height, chrominance is stored in half resolution. <see href="https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12"/>.
         /// </summary>
         private void InitializeBitmap()
         {
@@ -269,7 +294,7 @@ namespace LabVision
                     return;
                 }
 
-                CameraExtrinsic extrinsic = new CameraExtrinsic(frame.CoordinateSystem, worldOrigin);
+                CameraExtrinsic extrinsic = new CameraExtrinsic(frame.CoordinateSystem, WorldOrigin);
                 CameraIntrinsic intrinsic = new CameraIntrinsic(frame.VideoMediaFrame.CameraIntrinsics);
 
                 using (var input = originalSoftwareBitmap.LockBuffer(BitmapBufferAccessMode.Read))
@@ -292,7 +317,7 @@ namespace LabVision
 #endif
 
         /// <summary>
-        /// Pad the frame width to 64. Needed for Shader on HoloLens 2.
+        /// Pad the frame width to 64. Required for the grayscale and RGB shader.
         /// From https://github.com/qian256/HoloLensARToolKit/blob/master/HoloLensARToolKit/Assets/ARToolKitUWP/Scripts/ARUWPVideo.cs.
         /// </summary>
         /// <param name="frameWidth">The frame width to pad to 64.</param>
