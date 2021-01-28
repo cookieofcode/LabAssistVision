@@ -1,0 +1,113 @@
+name: CI
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Unity (UWP ARM64)
+    runs-on: windows-latest
+    env:
+      UNITY_VERSION: 2019.4.15f1
+        
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Checks-out out OpenCVForUnity (paid asset)
+      - name: Checkout LabAssistVision-OpenCVForUnity
+        uses: actions/checkout@v2
+        with:
+          repository: cookieofcode/LabAssistVision-OpenCVForUnity
+          token: ${{ secrets.LABVISION_PAT }} # `LABVISION_PAT` is a secret that contains your PAT
+          path: Assets/OpenCVForUnity
+
+      - name: Cache Unity Setup Installers
+        uses: actions/cache@v2.1.3
+        with:
+          path: D:\a\LabAssistVision\LabAssistVision\UnitySetupInstallerCache
+          key: UnitySetupInstallerCache-${{ env.UNITY_VERSION }}
+          
+      - name: Install Unity
+        run: |
+          Install-Module UnitySetup -Force
+          Import-Module UnitySetup
+          Install-UnitySetupInstance -Cache UnitySetupInstallerCache -Installers (Find-UnitySetupInstaller -Version "$env:UNITY_VERSION" -Components 'Windows','Windows_IL2CPP','UWP_IL2CPP') -Verbose
+        shell: pwsh
+        
+      - name: Turnstyle
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          poll-interval-seconds: 10
+                    
+      - name: Cache Unity
+        uses: actions/cache@v2.1.3
+        with:
+          path: D:\a\LabAssistVision\LabAssistVision\Library
+          key: UnityCache-${{ env.UNITY_VERSION }}  
+      
+      - name: Activate Unity License
+        run: Start-UnityEditor -Project .\ -Credential (New-Object System.Management.Automation.PSCredential ("$env:UNITY_EMAIL", (ConvertTo-SecureString "$env:UNITY_PASSWORD" -AsPlainText -Force))) -Serial (ConvertTo-SecureString "$env:UNITY_SERIAL" -AsPlainText -Force) -LogFile .\Logs\Activation.log -AdditionalArguments "-verbose -nographics" -Wait -Verbose -ErrorAction SilentlyContinue
+        shell: pwsh
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        #continue-on-error: true # Can output errors even if activation is successful. Using -LogFile reports them as error. As an alternative, log silently as AdditionalArgument "-logFile .\Logs\Activation.log" instead.
+
+      - name: Build Unity Project
+        run: Start-UnityEditor -Project .\ -ExecuteMethod Microsoft.MixedReality.Toolkit.Build.Editor.UnityPlayerBuildTools.StartCommandLineBuild -BuildTarget WSAPlayer -BatchMode -Quit -LogFile .\Logs\Build.log -Wait -AdditionalArguments "-verbose -nographics -logDirectory Logs -arm64" -Verbose
+        # Build with appx takes very long, do not use -Quit until https://github.com/microsoft/MixedRealityToolkit-Unity/issues/8901 is resolved
+        #run: Start-UnityEditor -Project .\ -ExecuteMethod Microsoft.MixedReality.Toolkit.Build.Editor.UnityPlayerBuildTools.StartCommandLineBuild -BuildTarget WSAPlayer -BatchMode -LogFile .\Logs\Build.log -Wait -AdditionalArguments "-verbose -nographics -logDirectory Logs -buildAppx -arm64" -Verbose
+        shell: pwsh
+
+      - name: Return Unity License
+        run: Start-UnityEditor -Project .\ -Credential (New-Object System.Management.Automation.PSCredential ("$env:UNITY_EMAIL", (ConvertTo-SecureString "$env:UNITY_PASSWORD" -AsPlainText -Force))) -ReturnLicense -LogFile .\Logs\Deactivation.log -Wait -Verbose
+        shell: pwsh
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}  
+        if: always()
+
+      - name: Remove any sensitive information from Unity logs
+        run: | 
+          Set-Content -path .\Logs\Activation.log -Value (get-content -path .\Logs\Activation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          Set-Content -path .\Logs\Build.log -Value (get-content -path .\Logs\Build.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          Set-Content -path .\Logs\Deactivation.log -Value (get-content -path .\Logs\Deactivation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Deactivation.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Deactivation.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Deactivation.log
+        shell: pwsh
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        if: always()
+      
+      #- name: Upload Unity Logs
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: Unity Logs
+      #    path: Logs/*.log
+      #  if: always()
+      
+      #- name: Upload Appx Module
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: Master_ARM64.appx
+      #    path: Builds\WSAPlayer\AppPackages\**\**\*.appx
