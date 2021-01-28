@@ -31,20 +31,20 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
         private ICamera _camera;
         private CameraFrame _frame;
 
-        private Shader _yuv2rgb_nv12Shader => _cameraServiceProfile.rgbShader;
+        private Shader Yuv2RGBNv12Shader => _cameraServiceProfile.rgbShader;
 
         /// <summary>
         /// Contains the YUV2RGB_NV12 Shader required for conversion on the GPU.
         /// </summary>
-        private Material _MediaMaterialRGB;
+        private Material _mediaMaterialRGB;
         private Texture2D _luminance;
         private Texture2D _chrominance;
-        private Mat rgb;
+        private Mat _rgb;
         [NotNull] private readonly CameraServiceProfile _cameraServiceProfile;
-        private LocatableCameraProfile locatableCameraProfile => _cameraServiceProfile.locatableCameraProfile;
+        private LocatableCameraProfile LocatableCameraProfile => _cameraServiceProfile.locatableCameraProfile;
 
         private int _isProcessingFrame;
-        public bool isProcessingFrame
+        public bool IsProcessingFrame
         {
             get { return Interlocked.CompareExchange(ref _isProcessingFrame, 1, 1) == 1; }
             set
@@ -60,7 +60,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
         /// </summary>
         private readonly object _sync = new object();
         private CameraFrame _currentCameraFrame;
-        private CameraFrame currentCameraFrame
+        private CameraFrame CurrentCameraFrame
         {
             get
             {
@@ -75,7 +75,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
         }
 
         private bool _newFrameAvailable;
-        public bool newFrameAvailable
+        public bool NewFrameAvailable
         {
             get
             {
@@ -98,9 +98,9 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
             CameraServiceProfile serviceProfile = profile as CameraServiceProfile;
             if (serviceProfile == null) throw new ArgumentNullException(nameof(serviceProfile));
             _cameraServiceProfile = serviceProfile;
-            if (_yuv2rgb_nv12Shader == null) throw new ArgumentNullException(nameof(_yuv2rgb_nv12Shader), "No conversion shader found. Check configuration. Ensure that YUV2RGB_NV12 Shader is always included (Project Settings > Graphics > Always Included Shaders)");
+            if (Yuv2RGBNv12Shader == null) throw new ArgumentNullException(nameof(Yuv2RGBNv12Shader), "No conversion shader found. Check configuration. Ensure that YUV2RGB_NV12 Shader is always included (Project Settings > Graphics > Always Included Shaders)");
 #if ENABLE_WINMD_SUPPORT
-            _camera = new LocatableCamera(locatableCameraProfile, Format);
+            _camera = new LocatableCamera(LocatableCameraProfile, Format);
             _camera.FrameArrived += OnFrameArrived;
             _camera.CameraInitialized += OnCameraInitialized;
 #else
@@ -112,35 +112,46 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
         #endregion // Constructors
 
         #region Internal Methods
+        /// <summary>
+        /// Instantiates required textures and registers RGB conversion if requested.
+        /// </summary>
         private void OnCameraInitialized(object sender, CameraInitializedEventArgs e)
         {
             if (Format == ColorFormat.RGB)
             {
-                rgb = new Mat(FrameHeight, FrameWidth, CvType.CV_8UC3);
-                _MediaMaterialRGB = new Material(_yuv2rgb_nv12Shader);
-                if (_MediaMaterialRGB == null) throw new InvalidOperationException("Media Material shader not found");
+                _rgb = new Mat(FrameHeight, FrameWidth, CvType.CV_8UC3);
+                _mediaMaterialRGB = new Material(Yuv2RGBNv12Shader);
+                if (_mediaMaterialRGB == null) throw new InvalidOperationException("Media Material shader not found");
                 // A single-component, 8-bit unsigned-normalized-integer format that supports 8 bits for the red channel.
                 _luminance = new Texture2D(FrameWidth, FrameHeight, TextureFormat.R8, false);
                 // A two-component, 16-bit unsigned-normalized-integer format that supports 8 bits for the red channel and 8 bits for the green channel.
                 _chrominance = new Texture2D(FrameWidth / 2, FrameHeight / 2, TextureFormat.RG16, false);
-                _MediaMaterialRGB.SetTexture("luminanceChannel", _luminance);
-                _MediaMaterialRGB.SetTexture("chrominanceChannel", _chrominance);
+                _mediaMaterialRGB.SetTexture("luminanceChannel", _luminance);
+                _mediaMaterialRGB.SetTexture("chrominanceChannel", _chrominance);
                 Camera.onPreRender += OnPreRenderCallback;
             }
             CameraInitialized?.Invoke(this, e);
             Initialized = true;
         }
 
+        /// <summary>
+        /// Starts the NV12 to RGB conversion on the GPU.
+        /// </summary>
+        /// <param name="camera"></param>
         private void OnPreRenderCallback(Camera camera)
         {
             if (camera != Camera.main) return;
-            if (currentCameraFrame == null) return;
-            if (FrameCount == currentCameraFrame.FrameCount) return;
-            FrameCount = currentCameraFrame.FrameCount;
-            CoroutineRunner.StartCoroutine(Copy(currentCameraFrame));
+            if (CurrentCameraFrame == null) return;
+            if (FrameCount == CurrentCameraFrame.FrameCount) return;
+            FrameCount = CurrentCameraFrame.FrameCount;
+            CoroutineRunner.StartCoroutine(Convert(CurrentCameraFrame));
         }
 
-        private IEnumerator Copy(CameraFrame frame)
+        /// <summary>
+        /// Updates the textures required by the conversion shader and requests the conversion on the GPU.
+        /// </summary>
+        /// <param name="frame"></param>
+        private IEnumerator Convert(CameraFrame frame)
         {
             Mat nv12 = frame.Mat;
             Mat luminance = nv12.submat(0, FrameHeight, 0, FrameWidth);
@@ -148,12 +159,15 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
             Utils.fastMatToTexture2D(luminance, _luminance);
             Utils.fastMatToTexture2D(chrominance, _chrominance);
             var rt = RenderTexture.GetTemporary(FrameWidth, FrameHeight, 0, GraphicsFormat.R8G8B8A8_UNorm);
-            Graphics.Blit(null, rt, _MediaMaterialRGB);
+            Graphics.Blit(null, rt, _mediaMaterialRGB);
             yield return new WaitForEndOfFrame();
             AsyncGPUReadback.Request(rt, 0, TextureFormat.RGB24, OnCompleteReadback);
             RenderTexture.ReleaseTemporary(rt);
         }
 
+        /// <summary>
+        /// Invoked if the NV12 to RGB conversion is complete and the data is ready to be read to the CPU.
+        /// </summary>
         private void OnCompleteReadback(AsyncGPUReadbackRequest request)
         {
             if (request.hasError)
@@ -162,17 +176,20 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
                 return;
             }
 
-            MatUtils.copyToMat(request.GetData<uint>(), rgb);
-            Core.flip(rgb, rgb, 0); // image is flipped on x-axis
-            CameraFrame newFrame = new CameraFrame(rgb, currentCameraFrame.Intrinsic, currentCameraFrame.Extrinsic, currentCameraFrame.Width, currentCameraFrame.Height, currentCameraFrame.FrameCount, Format);
+            MatUtils.copyToMat(request.GetData<uint>(), _rgb);
+            Core.flip(_rgb, _rgb, 0); // image is flipped on x-axis
+            CameraFrame newFrame = new CameraFrame(_rgb, CurrentCameraFrame.Intrinsic, CurrentCameraFrame.Extrinsic, CurrentCameraFrame.Width, CurrentCameraFrame.Height, CurrentCameraFrame.FrameCount, Format);
             FrameArrivedEventArgs args = new FrameArrivedEventArgs(newFrame);
             _frame = newFrame;
             FrameArrived?.Invoke(this, args);
             FPSUtils.VideoTick();
-            newFrameAvailable = true;
-            isProcessingFrame = false;
+            NewFrameAvailable = true;
+            IsProcessingFrame = false;
         }
 
+        /// <summary>
+        /// Depending on color format, the frame is passed on or buffered for conversion.
+        /// </summary>
         private void OnFrameArrived(object sender, FrameArrivedEventArgs e)
         {
             if (Format == ColorFormat.Grayscale)
@@ -183,15 +200,18 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
             }
             else
             {
-                if (isProcessingFrame) return;
-                isProcessingFrame = true;
-                currentCameraFrame = e.Frame;
+                if (IsProcessingFrame) return;
+                IsProcessingFrame = true;
+                CurrentCameraFrame = e.Frame;
             }
         }
 
         #endregion // Internal Methods
 
         #region Public Methods
+        /// <summary>
+        /// Stops the camera and creates a new <see cref="ICamera">camera</see> with a new profile and format.
+        /// </summary>
         public async void ChangeVideoParameter(LocatableCameraProfile profile, ColorFormat format)
         {
             await _camera.StopCapture();
