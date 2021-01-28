@@ -19,23 +19,22 @@ namespace LabVision
     public class VideoDisplayManager : MonoBehaviour
     {
         #region Member Variables
-        // ReSharper disable once NotNullMemberIsNotInitialized
-        [NotNull] private Logger _logger;
+        [NotNull] private readonly Logger _logger = new Logger(new LogHandler());
 
         /// <summary>
         /// The <see cref="Material"/> used to render the <see cref="Texture"/>.
         /// </summary>
-        private Material _videoDisplayMaterial;
+        [CanBeNull] private Material _videoDisplayMaterial;
 
         /// <summary>
         /// Holds the image of the current camera frame.
         /// </summary>
-        private Texture2D _texture;
+        [CanBeNull] private Texture2D _texture;
 
         /// <summary>
         /// The <see cref="Renderer"/> of the video display object.
         /// </summary>
-        private MeshRenderer _meshRenderer;
+        [CanBeNull] private MeshRenderer _meshRenderer;
 
         /// <summary>
         /// The last frame count to determine if the arrived frame is updated.
@@ -50,12 +49,12 @@ namespace LabVision
         /// <summary>
         /// The <see cref="Shader"/> used to display RGB images (e.g. "Unlit/Texture").
         /// </summary>
-        public Shader rgbShader;
+        [CanBeNull] public Shader rgbShader = Shader.Find("Unlit/Texture");
 
         /// <summary>
         /// The <see cref="Shader"/> used to display grayscale images using the luminance.
         /// </summary>
-        public Shader luminanceShader;
+        [CanBeNull] public Shader luminanceShader = Shader.Find("Unlit/GreyScale_MRTK");
 
         /// <summary>
         /// Enabling the video display has impact on performance. Can not be changed at runtime.
@@ -78,12 +77,12 @@ namespace LabVision
         /// <summary>
         /// The Video Display <see cref="GameObject"/>.
         /// </summary>
-        public GameObject videoDisplay;
+        [CanBeNull] public GameObject videoDisplay;
 
         /// <summary>
         /// The FPS Display <see cref="GameObject"/>.
         /// </summary>
-        public GameObject fpsDisplay;
+        [CanBeNull] public GameObject fpsDisplay;
 
         /// <summary>
         /// Determines the scale factor of the video display, as the size depends on the camera resolution, which can be changed during runtime.
@@ -134,6 +133,12 @@ namespace LabVision
                     throw new InvalidOperationException($"Color format {format} not supported by Video Display Manager");
             }
 
+            if (_meshRenderer == null)
+            {
+                Debug.Log("Could not initialize texture as mesh renderer of video display is not initialized");
+                return;
+            }
+
             _meshRenderer.material = _videoDisplayMaterial;
             _videoDisplayMaterial.mainTexture = _texture;
 
@@ -149,8 +154,6 @@ namespace LabVision
         #region Unity Overrides
         public void Start()
         {
-            LoggingService loggingService = MixedRealityToolkit.Instance.GetService<LoggingService>();
-            _logger = loggingService.GetLogger();
             Assert.IsNotNull(_logger, "_logger != null");
 
             if (displayVideo)
