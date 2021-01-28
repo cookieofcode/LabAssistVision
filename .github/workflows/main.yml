@@ -2,7 +2,7 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ main, ci ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -80,16 +80,18 @@ jobs:
 
       - name: Remove sensitive information from Unity logs
         run: | 
-          Set-Content -path .\Logs\Activation.log -Value (get-content -path .\Logs\Activation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch);
-          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Activation.log;
-          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Activation.log;
-          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Activation.log;
-          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Build.log;
-          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Build.log;
-          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Build.log;
-          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Deactivation.log;
-          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Deactivation.log;
-          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Deactivation.log;
+          Set-Content -path .\Logs\Activation.log -Value (get-content -path .\Logs\Activation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          Set-Content -path .\Logs\Build.log -Value (get-content -path .\Logs\Build.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          Set-Content -path .\Logs\Deactivation.log -Value (get-content -path .\Logs\Deactivation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Deactivation.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Deactivation.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Deactivation.log
         shell: pwsh
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
