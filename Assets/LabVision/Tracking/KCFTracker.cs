@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using OpenCVForUnity.CoreModule;
-using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.TrackingModule;
-using OpenCVForUnity.UnityUtils;
 
 namespace LabVision
 {
+    /// <summary>
+    /// <seealso href="https://docs.opencv.org/4.5.0/d2/dff/classcv_1_1TrackerKCF.html"/>
+    /// </summary>
     public class KCFTracker : CvTracker
     {
         public override TrackedObject Initialize(CameraFrame frame, Rect2d rect, string label)
@@ -19,9 +17,7 @@ namespace LabVision
 
         protected override Tracker CreateTracker()
         {
-            Utils.setDebugMode(true);
             TrackerKCF tracker = TrackerKCF.create();
-            Utils.setDebugMode(false);
             if (tracker == null) throw new ArgumentNullException(nameof(tracker));
             return tracker;
         }
@@ -31,12 +27,7 @@ namespace LabVision
             if (tracker == null) throw new ArgumentNullException(nameof(tracker));
             if (mat == null) throw new ArgumentNullException(nameof(mat));
             if (rect == null) throw new ArgumentNullException(nameof(rect));
-            Mat bgr = new Mat(mat.rows(), mat.cols(), CvType.CV_8UC3);
-            Imgproc.cvtColor(mat, bgr, Imgproc.COLOR_YUV2BGR_NV12);
-            Utils.setDebugMode(true);
-            bool initialized = tracker.init(bgr, rect);
-            Utils.setDebugMode(false);
-            return initialized;
+            return tracker.init(mat, rect);
         }
     }
 }

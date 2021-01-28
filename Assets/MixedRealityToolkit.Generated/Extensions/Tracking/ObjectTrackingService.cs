@@ -66,9 +66,6 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
                 case Tracker.MILTracker:
                     ObjectTracker = new MILTracker();
                     break;
-                case Tracker.TestTracker:
-                    ObjectTracker = new CamShiftTracker();
-                    break;
                 default:
                     throw new ArgumentException("Tracker not implemented");
             }

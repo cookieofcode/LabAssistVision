@@ -12,7 +12,9 @@ namespace LabVision
     public abstract class CvTracker : IObjectTracker
     {
         /// <summary>
-        /// The tracked objects with their trackers.
+        /// The tracked objects with their OpenCV tracker.
+        /// Alternative to the <see href="https://docs.opencv.org/4.5.0/d8/d77/classcv_1_1MultiTracker.html">OpenCV MultiTracker</see> to support
+        /// outdated and stale objects.
         /// </summary>
         [NotNull] protected List<CvTrackedObject> CvTrackedObjects = new List<CvTrackedObject>();
 
@@ -24,13 +26,13 @@ namespace LabVision
 
             Tracker tracker = CreateTracker();
             bool initialized = Initialize(tracker, frame.Mat, rect);
-            if (!initialized) Debug.LogError("tracker init fail");
+            if (!initialized) Debug.LogError("Tracker initialization failed");
 
             TrackedObject trackedObject = new TrackedObject(rect, label, frame.Intrinsic, frame.Extrinsic, frame.Height);
             CvTrackedObject cvTrackedObject = new CvTrackedObject(trackedObject, tracker);
             CvTrackedObjects.Add(cvTrackedObject);
 
-            Debug.Log($"Initialized Tracker with status: {initialized}");
+            Debug.Log($"Initialized tracker with status: {initialized}");
             return trackedObject;
         }
 
