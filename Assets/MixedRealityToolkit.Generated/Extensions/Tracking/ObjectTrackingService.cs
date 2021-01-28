@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using LabVision;
+using LabAssistVision;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using OpenCVForUnity.CoreModule;
 using UnityEngine;
@@ -17,13 +17,9 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
     {
         public List<TrackedObject> TrackedObjects => new List<TrackedObject>(_trackedObjects);
         protected IObjectTracker ObjectTracker;
+        private readonly Logger _logger;
         private readonly ObjectTrackingServiceProfile _objectTrackingServiceProfile;
         private List<TrackedObject> _trackedObjects = new List<TrackedObject>();
-        private readonly Logger _logger;
-
-        // TODO: Measurement
-        //private string path;
-        //public TextWriter writer;
 
         public ObjectTrackingService(string name, uint priority, BaseMixedRealityProfile profile) : base(name, priority, profile)
         {
@@ -34,11 +30,6 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
 
             _logger = new Logger(new LogHandler());
             Assert.IsNotNull(_logger);
-            // TODO: Measurement
-            //Debug.Log($"Writing ObjectTrackingService Measurements to {Application.persistentDataPath}");
-            //path = Path.Combine(Application.persistentDataPath, "ObjectTrackingService-" + DateTime.Now.ToFileTimeUtc() + ".csv");
-            //writer = File.CreateText(path);
-            //writer.WriteLine("timeofday,renderms,videoms,trackms,trackercount,stopwatch,ticks,msfromticks,height,width");
         }
 
         private void Initialize(Tracker tracker)
@@ -66,9 +57,6 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
                 case Tracker.MILTracker:
                     ObjectTracker = new MILTracker();
                     break;
-                case Tracker.TestTracker:
-                    ObjectTracker = new CamShiftTracker();
-                    break;
                 default:
                     throw new ArgumentException("Tracker not implemented");
             }
@@ -83,23 +71,15 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
 
         public override void Reset()
         {
-            // writer.Flush();
             ObjectTracker.Reset();
             _trackedObjects = new List<TrackedObject>();
             base.Reset();
         }
 
-        public override void Destroy()
-        {
-            //writer.Flush();
-            // writer.Dispose();
-            base.Destroy();
-        }
-
         public Vector2 unprojectionOffset => _objectTrackingServiceProfile.unprojectionOffset;
 
-        public int fixedTrackerCount => _objectTrackingServiceProfile.fixedTrackerCount;
-        public bool forceFixedTrackerCount => _objectTrackingServiceProfile.forceFixedTrackerCount;
+        public int FixedTrackerCount => _objectTrackingServiceProfile.fixedTrackerCount;
+        public bool ForceFixedTrackerCount => _objectTrackingServiceProfile.forceFixedTrackerCount;
         public void ToggleFixedTrackerCount()
         {
             _objectTrackingServiceProfile.forceFixedTrackerCount = !_objectTrackingServiceProfile.forceFixedTrackerCount;
@@ -121,9 +101,6 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
             List<TrackedObject> trackedObjects = ObjectTracker.Update(frame);
             stopWatch.Stop();
             FPSUtils.TrackTick();
-            // TODO: Measurement
-            //writer.WriteLine($"{DateTime.Now.TimeOfDay.TotalMilliseconds},{FPSUtils.GetRenderDeltaTime()},{FPSUtils.GetVideoDeltaTime()},{FPSUtils.GetTrackDeltaTime()},{trackedObjects.Count},{stopWatch.ElapsedMilliseconds},{stopWatch.ElapsedTicks},{TimeSpan.FromTicks(stopWatch.ElapsedTicks).TotalMilliseconds},{frame.Height},{frame.Width}");
-            //writer.WriteLine($"{FPSUtils.GetRenderDeltaTime()},{FPSUtils.GetVideoDeltaTime()},{FPSUtils.GetTrackDeltaTime()},{trackedObjects.Count},{stopWatch.ElapsedMilliseconds}");
             _trackedObjects = trackedObjects;
             return trackedObjects;
         }
@@ -138,12 +115,12 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
                 DetectedObject detectedObject = detectedObjects.OrderByDescending(o => o.Probability).FirstOrDefault();
                 if (detectedObject == null)
                 {
-                    _logger.LogWarning("No object detected.");
+                    _logger.LogWarning("No object detected");
                     return trackedObjects;
                 }
 
                 List<DetectedObject> clones = new List<DetectedObject>();
-                for (int i = 0; i < fixedTrackerCount; i++)
+                for (int i = 0; i < FixedTrackerCount; i++)
                 {
                     clones.Add(new DetectedObject(detectedObject));
                 }

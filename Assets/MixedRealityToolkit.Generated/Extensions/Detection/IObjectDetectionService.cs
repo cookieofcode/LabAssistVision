@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using LabVision;
+using LabAssistVision;
 
 namespace Microsoft.MixedReality.Toolkit.Extensions
 {

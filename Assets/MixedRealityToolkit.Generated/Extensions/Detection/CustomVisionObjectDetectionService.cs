@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using LabVision;
-using LabVision.Detection;
+using LabAssistVision;
+using LabAssistVision.Detection;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -16,12 +16,12 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
     [MixedRealityExtensionService(SupportedPlatforms.WindowsStandalone | SupportedPlatforms.WindowsUniversal)]
     public class CustomVisionObjectDetectionService : BaseExtensionService, IObjectDetectionService, IMixedRealityExtensionService
     {
-        [NotNull] private ObjectDetectionServiceProfile _objectDetectionServiceProfile;
+        [NotNull] private readonly ObjectDetectionServiceProfile _objectDetectionServiceProfile;
 
         private int _concurrentCount;
 
         // ReSharper disable once NotNullMemberIsNotInitialized
-        [NotNull] private Logger _logger;
+        [NotNull] private readonly Logger _logger;
 
         private readonly IObjectDetector _objectDetector;
 

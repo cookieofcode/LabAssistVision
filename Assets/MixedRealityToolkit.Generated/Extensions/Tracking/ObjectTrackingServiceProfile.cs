@@ -1,5 +1,5 @@
 using System;
-using LabVision;
+using LabAssistVision;
 using UnityEngine;
 
 namespace Microsoft.MixedReality.Toolkit.Extensions
@@ -14,6 +14,10 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
         [Tooltip("Set offset of unprojected pixel coordinates. Offset unit is meter.")]
         public Vector2 unprojectionOffset = new Vector2(0, 0);
 
+        /// <summary>
+        /// The Tracker to use
+        /// </summary>
+        [Tooltip("Select the tracker to use. MOSSE performs best regarding to speed.")]
         public Tracker tracker;
 
         [Tooltip("Enforces a fixed amount of trackers. Used for performance measurement.")]
