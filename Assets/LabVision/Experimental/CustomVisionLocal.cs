@@ -23,8 +23,8 @@ using Rect = OpenCVForUnity.CoreModule.Rect;
 namespace LabVision
 {
     /// <summary>
-    /// Adapted from https://github.com/Syn-McJ/TFClassify-Unity-Barracuda
-    /// 
+    /// Experimental. Predictions are working, but there is somethin off with the bounding boxes.
+    /// Adapted from https://github.com/Syn-McJ/TFClassify-Unity-Barracuda and the Source Code provided from Custom Vision ONNX Model Export.
     /// </summary>
     public class CustomVisionLocal : IObjectDetector
     {
