@@ -77,7 +77,7 @@ namespace LabVision
 
         /// <summary>
         /// Reference to the switch to set if the fixed tracker count is forced.
-        /// This option is handled by <see cref="ObjectTrackingService"/>.
+        /// This option is handled by <see cref="Microsoft.MixedReality.Toolkit.Extensions.ObjectTrackingService"/>.
         /// </summary>
         public Interactable forceFixedTrackerCountSwitch;
 
@@ -101,7 +101,7 @@ namespace LabVision
         private Status _status = Status.Idle;
 
         private ICameraService _cameraService;
-        private ICameraService cameraService
+        private ICameraService CameraService
         {
             get
             {
@@ -113,7 +113,7 @@ namespace LabVision
 
         private IObjectDetectionService _objectDetectionService;
 
-        private IObjectDetectionService objectDetectionService
+        private IObjectDetectionService ObjectDetectionService
         {
             get
             {
@@ -124,7 +124,7 @@ namespace LabVision
         }
 
         private IObjectTrackingService _objectTrackingService;
-        private IObjectTrackingService objectTrackingService
+        private IObjectTrackingService ObjectTrackingService
         {
             get
             {
@@ -137,7 +137,7 @@ namespace LabVision
         /// <summary>
         /// Signal to indicate that an object detection has been requested. From https://stackoverflow.com/a/49233660
         /// </summary>
-        private bool isObjectDetectionRequested
+        private bool IsObjectDetectionRequested
         {
             get { return Interlocked.CompareExchange(ref _objectDetectionRequested, 1, 1) == 1; }
             set
@@ -151,7 +151,7 @@ namespace LabVision
         /// <summary>
         /// Signal to indicate that an object detection has been requested. From https://stackoverflow.com/a/49233660
         /// </summary>
-        private bool isProcessingFrame
+        private bool IsProcessingFrame
         {
             get { return Interlocked.CompareExchange(ref _isProcessingFrame, 1, 1) == 1; }
             set
@@ -173,19 +173,19 @@ namespace LabVision
         {
             if (frame == null) throw new ArgumentNullException(nameof(frame));
             if (_status != Status.Running) return;
-            if (isObjectDetectionRequested)
+            if (IsObjectDetectionRequested)
             {
                 if (!_objectDetectionService.detectOnRepeat)
                 {
-                    isObjectDetectionRequested = false;
+                    IsObjectDetectionRequested = false;
                 }
-                objectDetectionService.DetectAsync(frame).ContinueWith(OnObjectsDetected);
+                ObjectDetectionService.DetectAsync(frame).ContinueWith(OnObjectsDetected);
             }
 
             if (_objectDetectionService.detectOnRepeat) return;
-            List<TrackedObject> trackedObjects = objectTrackingService.TrackSync(frame);
-            isProcessingFrame = false;
-            Vector2 unprojectionOffset = objectTrackingService.unprojectionOffset;
+            List<TrackedObject> trackedObjects = ObjectTrackingService.TrackSync(frame);
+            IsProcessingFrame = false;
+            Vector2 unprojectionOffset = ObjectTrackingService.unprojectionOffset;
             _visualizationManager.UpdateTrackedObjects(trackedObjects, unprojectionOffset);
         }
 
@@ -199,15 +199,15 @@ namespace LabVision
             {
                 List<TrackedObject> trackedObjects = detectedObjectsTask.Result.Select(detectedObject => new TrackedObject(detectedObject)).ToList();
                 FPSUtils.TrackTick();
-                Vector2 unprojectionOffset = objectTrackingService.unprojectionOffset;
+                Vector2 unprojectionOffset = ObjectTrackingService.unprojectionOffset;
                 _visualizationManager.UpdateTrackedObjects(trackedObjects, unprojectionOffset);
             }
             else
             {
-                objectTrackingService.Reset();
-                List<TrackedObject> trackedObjects = objectTrackingService.InitializeTrackers(detectedObjects);
+                ObjectTrackingService.Reset();
+                List<TrackedObject> trackedObjects = ObjectTrackingService.InitializeTrackers(detectedObjects);
                 if (detectedObjects.Count != trackedObjects.Count) Debug.LogWarning("Could not initialize tracker for all detected objects");
-                Vector2 unprojectionOffset = objectTrackingService.unprojectionOffset;
+                Vector2 unprojectionOffset = ObjectTrackingService.unprojectionOffset;
                 _visualizationManager.UpdateTrackedObjects(trackedObjects, unprojectionOffset);
             }
         }
@@ -216,31 +216,31 @@ namespace LabVision
         {
             if (sync)
             {
-                cameraService.FrameArrived += CameraServiceOnFrameArrivedSync;
+                CameraService.FrameArrived += CameraServiceOnFrameArrivedSync;
             }
             else
             {
-                cameraService.FrameArrived += CameraServiceOnFrameArrivedAsync;
+                CameraService.FrameArrived += CameraServiceOnFrameArrivedAsync;
             }
 
-            return await cameraService.StartCapture();
+            return await CameraService.StartCapture();
         }
 
         private void CameraServiceOnFrameArrivedSync(object sender, FrameArrivedEventArgs e)
         {
-            if (isProcessingFrame) return;
-            isProcessingFrame = true;
+            if (IsProcessingFrame) return;
+            IsProcessingFrame = true;
             CameraFrame frame = e.Frame;
             ProcessFrameSync(frame);
-            isProcessingFrame = false;
+            IsProcessingFrame = false;
         }
         private void CameraServiceOnFrameArrivedAsync(object sender, FrameArrivedEventArgs e)
         {
-            if (isProcessingFrame) return;
-            isProcessingFrame = true;
+            if (IsProcessingFrame) return;
+            IsProcessingFrame = true;
             CameraFrame frame = e.Frame;
-            isProcessingFrame = true;
-            Task.Run(() => ProcessFrameSync(frame)).ContinueWith(_ => isProcessingFrame = false);
+            IsProcessingFrame = true;
+            Task.Run(() => ProcessFrameSync(frame)).ContinueWith(_ => IsProcessingFrame = false);
         }
         #endregion // Internal Methods
 
@@ -310,7 +310,7 @@ namespace LabVision
             int value = (int)(eventData.NewValue * 20f);
 
             maxConcurrentRequestLabel.text = $"{value}";
-            objectDetectionService.ChangeMaxConcurrentRequestLimit(value);
+            ObjectDetectionService.ChangeMaxConcurrentRequestLimit(value);
             Debug.Log($"Max object detection request limit changed to {value}");
         }
 
@@ -320,7 +320,7 @@ namespace LabVision
             int value = (int)(eventData.NewValue * 20f);
 
             fixedTrackerCountLabel.text = $"{value}";
-            objectTrackingService.ChangeFixedTrackerCount(value);
+            ObjectTrackingService.ChangeFixedTrackerCount(value);
             Debug.Log($"Changed tracker count value to {value}");
         }
 
@@ -329,7 +329,7 @@ namespace LabVision
             if (eventData == null) return;
             double value = eventData.NewValue;
             minimalPredictionProbabilityLabel.text = $"{value:0.0}";
-            objectDetectionService.ChangeMinimalPredictionProbability(value);
+            ObjectDetectionService.ChangeMinimalPredictionProbability(value);
             Debug.Log($"Changed minimal prediction probability to {value:0.0}");
         }
 
@@ -372,7 +372,7 @@ namespace LabVision
             {
                 if (_status == Status.Running)
                 {
-                    isObjectDetectionRequested = true;
+                    IsObjectDetectionRequested = true;
                 }
             }
 
@@ -391,16 +391,16 @@ namespace LabVision
 
         public void Reset()
         {
-            isObjectDetectionRequested = false;
-            objectDetectionService.Reset();
-            objectTrackingService.Reset();
+            IsObjectDetectionRequested = false;
+            ObjectDetectionService.Reset();
+            ObjectTrackingService.Reset();
             _visualizationManager.Reset();
-            isProcessingFrame = false;
+            IsProcessingFrame = false;
         }
 
         public void ChangeTracker(Tracker tracker)
         {
-            objectTrackingService.SwitchTracker(tracker);
+            ObjectTrackingService.SwitchTracker(tracker);
             Debug.Log($"Changed Tracker to {tracker}");
         }
 
@@ -447,7 +447,7 @@ namespace LabVision
             if (videoParameterSelectionInit)
             {
                 if (_status != Status.Running) return;
-                cameraService.ChangeVideoParameter(parameter, format);
+                CameraService.ChangeVideoParameter(parameter, format);
                 Debug.Log($"Changed video parameter to {parameter} and format {format}");
             }
             else
@@ -705,7 +705,7 @@ namespace LabVision
 
         public void RequestObjectDetection()
         {
-            isObjectDetectionRequested = true;
+            IsObjectDetectionRequested = true;
         }
 
         #endregion // Public Methods
