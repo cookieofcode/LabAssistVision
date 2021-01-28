@@ -30,7 +30,8 @@ A demonstration video in full length is available at: https://youtu.be/ru2a367se
 - Markerless object tracking using [OpenCV Tracking API](https://docs.opencv.org/4.5.0/d9/df8/group__tracking.html)
   - Implemented Trackers: MOSSE, TLD, Boosting, Median Flow, MIL, CSRT, KCF
   - *Real-time tracking (30 FPS) is achieved using MOSSE at a resolution of 760x428 @ 30 FPS in grayscale and synchronous mode.*
-- Interaction using Hand Input, eye gaze combined with voice commands (e.g. "*Detect*", "*Okay*") provided by [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity).
+- Mapping the 2D tracked object into 3D space using the [Spatial Mesh](https://docs.microsoft.com/en-us/windows/mixed-reality/design/spatial-mesh-ux).
+- Interaction using hand input, eye gaze combined with voice commands (e.g. "*Detect*", "*Okay*") provided by [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity).
 - Developer Console to change settings (e.g. video profile, color format, tracker, scenario) at runtime.
 - Video display of the camera stream including a debug view of the bounding boxes of tracked objects.
 
