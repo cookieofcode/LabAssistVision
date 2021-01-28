@@ -25,14 +25,24 @@ namespace LabVision
         public Matrix4x4 viewFromWorld;
 
         /// <summary>
-        /// The forward vector of the camera.
+        /// The right vector of the camera.
         /// </summary>
-        public Vector4 Forward => viewFromWorld.GetColumn(2);
+        public Vector4 Right => viewFromWorld.GetColumn(0);
 
         /// <summary>
         /// The upwards vector of the camera.
         /// </summary>
         public Vector4 Upwards => viewFromWorld.GetColumn(1);
+
+        /// <summary>
+        /// The forward vector of the camera.
+        /// </summary>
+        public Vector4 Forward => viewFromWorld.GetColumn(2);
+
+        /// <summary>
+        /// The position of the camera.
+        /// </summary>
+        public Vector3 Position => viewFromWorld.GetColumn(3);
 
         public CameraExtrinsic(Matrix4x4 viewFromWorld)
         {

@@ -114,8 +114,7 @@ namespace LabVision
 
         public Vector3 GetCameraPosition()
         {
-            Matrix4x4 viewFromWorld = Extrinsic.viewFromWorld;
-            Vector3 cameraPosition = viewFromWorld.GetColumn(3);
+            Vector3 cameraPosition = Extrinsic.Position;
             if (cameraPosition == Vector3.forward) Debug.LogWarning("Camera position is forward vector.");
             if (cameraPosition == Vector3.zero) Debug.LogWarning("Camera position is zero vector.");
             return cameraPosition;
