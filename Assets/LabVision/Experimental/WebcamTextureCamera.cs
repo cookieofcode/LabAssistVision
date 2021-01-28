@@ -14,6 +14,11 @@ using UnityEngine.Assertions;
 
 namespace LabVision
 {
+    /// <summary>
+    /// Experimental. Retrieves an ARGB image from the WebCam texture. Does not provide intrinsic or extrinsic.
+    /// The YUV conversion via OpenCV is not in NV12 image format. But it works for luminancy only (grayscale).
+    /// </summary>
+    [Obsolete("Use MonoCamera")]
     [DisallowMultipleComponent]
     public class WebcamTextureCamera : MonoBehaviour, ICamera
     {
