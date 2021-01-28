@@ -9,7 +9,7 @@ Supervisor: [Prof. Dr. Doris Agotai](https://www.fhnw.ch/de/personen/doris-agota
 
 ## Overview
 
-*Lab Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware). Using the voice command *"Detect,"* objects are recognized by a cloud service to initialize markerless tracking on the device. The tracked laboratory items can be confirmed by eye gaze and the voice command *"Okay"* to change the tooltip color.
+*Lab Assist Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware). Using the voice command *"Detect,"* objects are recognized by a cloud service to initialize markerless tracking on the device. The tracked laboratory items can be confirmed by eye gaze and the voice command *"Okay"* to change the tooltip color.
 
 [![Image of demonstration not loaded yet. See the demonstration video below.](./teaser.gif)](https://youtu.be/-usFovY6nD8)
 
@@ -92,8 +92,8 @@ Ensure that the following settings are configured in Unity:
 ### Development
 
 - It is possible to run the application using the Unity Editor and the Play Mode to get fast feedback during development. While object detection and tracking are supported, mapping to 3D is partially possible using Holographic Remoting due to missing intrinsic and extrinsic.
-  - The [`MonoCamera`](Assets/LabVision/Camera/MonoCamera.cs) simulates the [Locatable Camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera) of the device in the Unity Editor. Using [PhotoCapture](https://docs.unity3d.com/ScriptReference/Windows.WebCam.PhotoCapture.html) used in a loop delivers the WebCam image in [NV12](https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12) format (at a low framerate). The camera extrinsic and intrinsic required for mapping the 3D position are ignored.
-  - In Holographic Remoting, the WebCam of the computer is used. A tracked object is then mapped to the collision point of the main camera's gaze and the [Spatial Mesh](https://docs.microsoft.com/en-us/windows/mixed-reality/design/spatial-mesh-ux). *Experimental: Using [StreamCamera](Assets/LabVision/Camera/StreamCamera.cs), the camera stream of the device obtained by the [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal) can be used in the Unity Editor. Note that a proxy is required to bypass the authentication (does also not provide extrinsic and intrinsic).*
+  - The [`MonoCamera`](Assets/LabAssistVision/Camera/MonoCamera.cs) simulates the [Locatable Camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera) of the device in the Unity Editor. Using [PhotoCapture](https://docs.unity3d.com/ScriptReference/Windows.WebCam.PhotoCapture.html) used in a loop delivers the WebCam image in [NV12](https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12) format (at a low framerate). The camera extrinsic and intrinsic required for mapping the 3D position are ignored.
+  - In Holographic Remoting, the WebCam of the computer is used. A tracked object is then mapped to the collision point of the main camera's gaze and the [Spatial Mesh](https://docs.microsoft.com/en-us/windows/mixed-reality/design/spatial-mesh-ux). *Experimental: Using [StreamCamera](Assets/LabAssistVision/Camera/StreamCamera.cs), the camera stream of the device obtained by the [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal) can be used in the Unity Editor. Note that a proxy is required to bypass the authentication (does also not provide extrinsic and intrinsic).*
 - The video profile, color format, and tracker can be switched during runtime. *Real-time tracking (30 FPS) is achieved using MOSSE at a resolution of 760x428 @ 30 FPS in grayscale and synchronous mode.*
 
 ### Developer Console
@@ -114,7 +114,7 @@ The toolbar follows the user's field of view until the position is fixed. It all
 
 ### Notes regarding Software Architecture
 
-Scripts for visualization purposes, such as [`VideoDisplayManager`](Assets/LabVision/VideoDisplayManager.cs), [`VisualizationManager`](Assets/LabVision/VisualizationManager.cs), and the [`Controller`](Assets/LabVision/Controller.cs), are implemented as [`MonoBehaviour`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) to enable support from the Unity Editor, and position game objects in the scene.
+Scripts for visualization purposes, such as [`VideoDisplayManager`](Assets/LabAssistVision/VideoDisplayManager.cs), [`VisualizationManager`](Assets/LabAssistVision/VisualizationManager.cs), and the [`Controller`](Assets/LabAssistVision/Controller.cs), are implemented as [`MonoBehaviour`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) to enable support from the Unity Editor, and position game objects in the scene.
 
 [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity) is built in a modular approach, provides a service locator component, and centralized as much of the configuration required as possible. This component is configurable in the Unity Editor and manages component lifespans and code behaviors. Extension services are services that extend the functionality of the [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity). After registration, the service is accessible using the [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity) service registry. See [this introduction](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/mrtk-getting-started) for an introduction to [MRTK](https://github.com/microsoft/MixedRealityToolkit-Unity).
 
@@ -126,4 +126,4 @@ A [`CameraService`](Assets/MixedRealityToolkit.Generated/Extensions/Camera/ICame
 
 ## License
 
-Lab Vision is open for use in compliance with the [MIT License](LICENSE). The [grayscale shader](Assets/LabVision/Shaders/Grayscale_MRTK.shader) for the video display and [FPSUtils](Assets/LabVision/Utils/FPSUtils.cs) for measurement originate from [HoloLensARTookit](https://github.com/qian256/HoloLensARToolKit) and are licensed under the GNU Lesser General Public License v3.0.
+Lab Assist Vision is open for use in compliance with the [MIT License](LICENSE). The [grayscale shader](Assets/LabAssistVision/Shaders/Grayscale_MRTK.shader) for the video display and [FPSUtils](Assets/LabAssistVision/Utils/FPSUtils.cs) for measurement originate from [HoloLensARTookit](https://github.com/qian256/HoloLensARToolKit) and are licensed under the GNU Lesser General Public License v3.0.
