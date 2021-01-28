@@ -51,6 +51,9 @@ namespace LabVision
             tooltip.ToolTipText = text;
         }
 
+        /// <summary>
+        /// Change the color of the label between green and blue.
+        /// </summary>
         public void ChangeColor()
         {
             _color = !_color;
