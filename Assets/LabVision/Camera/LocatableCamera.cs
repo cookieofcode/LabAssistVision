@@ -25,11 +25,24 @@ namespace LabVision
     /// </summary>
     public class LocatableCamera : ICamera
     {
+        #region Member Variables
+        public event EventHandler<FrameArrivedEventArgs> FrameArrived;
+        public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
+        public int FrameCount;
+        public int FrameHeight { get; set; }
+        public int FrameWidth { get; set; }
+        [NotNull] private readonly Logger _logger;
+        private Device _device = Device.HoloLens2;
+        private readonly LocatableCameraProfile _cameraProfile;
+        private readonly ColorFormat _format;
+        [CanBeNull] private Mat _bitmap;
+        #endregion // Member Variables
 
+        #region Constructor
         public LocatableCamera(LocatableCameraProfile cameraProfile, ColorFormat format)
         {
 #if !ENABLE_WINMD_SUPPORT
-                throw new InvalidOperationException("LocatableCamera is only supported on UWP. Use MonoCamera in Unity Editor.");
+            throw new InvalidOperationException("LocatableCamera is only supported on UWP. Use MonoCamera in Unity Editor.");
 #endif
             _cameraProfile = cameraProfile;
             _format = format;
@@ -39,19 +52,8 @@ namespace LabVision
             Assert.IsNotNull(worldOrigin, "worldOrigin != null");
 #endif
         }
+        #endregion // Constructor
 
-        #region Member Variables
-        [NotNull] private readonly Logger _logger;
-        private Device _device = Device.HoloLens2;
-        private readonly LocatableCameraProfile _cameraProfile;
-        private readonly ColorFormat _format;
-        private Mat _bitmap;
-        public event EventHandler<FrameArrivedEventArgs> FrameArrived;
-        public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
-        public int FrameCount;
-        public int FrameHeight { get; set; }
-        public int FrameWidth { get; set; }
-        #endregion
 
         #region Internal Methods
         /// <summary>
@@ -107,14 +109,13 @@ namespace LabVision
             IReadOnlyList<MediaFrameSourceGroup> groups = await MediaFrameSourceGroup.FindAllAsync();
             foreach (MediaFrameSourceGroup group in groups)
             {
-                _logger.Log($"{group.DisplayName}, {group.Id}");
                 if (group.DisplayName != displayName) continue;
-                _logger.Log($"Selected group {group} on HoloLens 2");
+                _logger.Log($"Selected group {group} on {_device}");
                 return group;
             }
             throw new ArgumentException($"No source group for display name {displayName} found.");
         }
-        
+
         private async Task<string> GetDeviceId(string displayName)
         {
             MediaFrameSourceGroup group = await SelectGroup(displayName);
@@ -139,7 +140,7 @@ namespace LabVision
                 VideoProfile = profiles.First(),
                 // Exclusive control is necessary to control frame-rate and resolution.
                 // Note: The resolution and frame-rate of the built-in MRC camera UI might be reduced from its normal values when another app is using the photo/video camera.
-                // see https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/mixed-reality-capture-for-developers
+                // See <see href="https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/mixed-reality-capture-for-developers"/>
                 SharingMode = MediaCaptureSharingMode.ExclusiveControl,
                 StreamingCaptureMode = StreamingCaptureMode.Video,
                 MemoryPreference = MediaCaptureMemoryPreference.Cpu
@@ -150,31 +151,23 @@ namespace LabVision
             return true;
         }
 
-        // adapted from https://github.com/qian256/HoloLensARToolKit/blob/master/HoloLensARToolKit/Assets/ARToolKitUWP/Scripts/ARUWPVideo.cs
-        private MediaFrameFormat GetTargetFormat(MediaFrameSource mediaFrameSourceVideo, CameraParameters parameters)
+        private MediaFrameFormat GetTargetFormat(MediaFrameSource frameSource, CameraParameters parameters)
         {
-            MediaFrameFormat targetResFormat = null;
-            float framerateDiffMin = 60f;
-            foreach (MediaFrameFormat frameFormat in mediaFrameSourceVideo.SupportedFormats.OrderBy(x => x.VideoFormat.Width * x.VideoFormat.Height))
-            {
-                if (frameFormat.VideoFormat.Width != parameters.CameraResolutionWidth || frameFormat.VideoFormat.Height != parameters.CameraResolutionHeight) continue;
-                if (targetResFormat == null)
-                {
-                    targetResFormat = frameFormat;
-                    framerateDiffMin = Mathf.Abs(frameFormat.FrameRate.Numerator / frameFormat.FrameRate.Denominator - parameters.FrameRate);
-                }
-                else if (Mathf.Abs(frameFormat.FrameRate.Numerator / frameFormat.FrameRate.Denominator - parameters.FrameRate) < framerateDiffMin)
-                {
-                    targetResFormat = frameFormat;
-                    framerateDiffMin = Mathf.Abs(frameFormat.FrameRate.Numerator / frameFormat.FrameRate.Denominator - parameters.FrameRate);
-                }
-            }
-
-            if (targetResFormat != null) return targetResFormat;
-
+            MediaFrameFormat preferredFormat = frameSource.SupportedFormats.FirstOrDefault(format => CompareFormat(format, parameters));
+            if (preferredFormat != null) return preferredFormat;
             _logger.LogWarning("Unable to choose the selected format, use fallback format.");
-            targetResFormat = mediaFrameSourceVideo.SupportedFormats.OrderBy(x => x.VideoFormat.Width * x.VideoFormat.Height).FirstOrDefault();
-            return targetResFormat;
+            preferredFormat = frameSource.SupportedFormats.OrderBy(x => x.VideoFormat.Width * x.VideoFormat.Height).FirstOrDefault();
+            return preferredFormat;
+        }
+
+        // adapted from https://github.com/microsoft/MixedReality-SpectatorView/blob/master/src/SpectatorView.Unity/Assets/PhotoCapture/Scripts/HoloLensCamera.cs
+        private bool CompareFormat(MediaFrameFormat format, CameraParameters parameters)
+        {
+            const double epsilon = 0.00001;
+            bool width = format.VideoFormat.Width == parameters.CameraResolutionWidth;
+            bool height = format.VideoFormat.Height == parameters.CameraResolutionHeight;
+            bool frameRate = Math.Abs((double)format.FrameRate.Numerator / (double)format.FrameRate.Denominator - parameters.FrameRate) < epsilon;
+            return (width && height && frameRate);
         }
 
         private async Task<bool> CreateFrameReader()
@@ -230,7 +223,7 @@ namespace LabVision
             _logger.Log("Media capture initialization successful");
             return true;
         }
-        
+
         /// <summary>
         /// Starts the video pipeline and frame reading.
         /// </summary>
