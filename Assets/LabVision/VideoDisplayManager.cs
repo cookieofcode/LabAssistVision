@@ -91,7 +91,7 @@ namespace LabVision
         public float scale = 0.0001f;
 
         private ICameraService _cameraService;
-        private ICameraService cameraService
+        private ICameraService CameraService
         {
             get
             {
@@ -102,7 +102,7 @@ namespace LabVision
         }
 
         private IObjectTrackingService _objectTrackingService;
-        private IObjectTrackingService objectTrackingService
+        private IObjectTrackingService ObjectTrackingService
         {
             get
             {
@@ -179,28 +179,28 @@ namespace LabVision
                 }
             }
 
-            if (cameraService.Initialized)
+            if (CameraService.Initialized)
             {
-                OnCameraInitialized(this, new CameraInitializedEventArgs(cameraService.FrameWidth, cameraService.FrameHeight, cameraService.Format));
-                cameraService.CameraInitialized += OnCameraInitialized; // necessary for switching
+                OnCameraInitialized(this, new CameraInitializedEventArgs(CameraService.FrameWidth, CameraService.FrameHeight, CameraService.Format));
+                CameraService.CameraInitialized += OnCameraInitialized; // necessary for switching
             }
             else
             {
-                cameraService.CameraInitialized += OnCameraInitialized;
+                CameraService.CameraInitialized += OnCameraInitialized;
             }
         }
 
         public void LateUpdate()
         {
             if (!displayVideo || !_textureInitialized) return;
-            CameraFrame cameraFrame = cameraService.CameraFrame;
+            CameraFrame cameraFrame = CameraService.CameraFrame;
             if (cameraFrame == null) return;
             if (!FrameHasChanged(cameraFrame)) return;
             Mat image = cameraFrame.Mat;
 
             if (trackingPreview)
             {
-                List<TrackedObject> trackedObjects = objectTrackingService.TrackedObjects;
+                List<TrackedObject> trackedObjects = ObjectTrackingService.TrackedObjects;
                 foreach (Rect2d rect in trackedObjects.Select(trackedObject => trackedObject.Rect))
                 {
                     Imgproc.rectangle(image, rect.tl(), rect.br(), new Scalar(255, 255, 255), 10, 1, 0);
