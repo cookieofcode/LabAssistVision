@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.UtilsModule;
@@ -18,16 +19,15 @@ namespace LabVision
         public int FrameWidth { get; set; }
         public int FrameHeight { get; set; }
 
-        public event EventHandler<FrameArrivedEventArgs> FrameArrived;
-        public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
+        [CanBeNull] public event EventHandler<FrameArrivedEventArgs> FrameArrived;
+        [CanBeNull] public event EventHandler<CameraInitializedEventArgs> CameraInitialized;
 
-        private PhotoCapture _photoCaptureObject;
-        private Mat _image;
+        private uint FrameCount { get; set; }
+        [CanBeNull] private Mat _image;
+        [CanBeNull] private PhotoCapture _photoCaptureObject;
         private Resolution _cameraResolution;
-        private uint frameCount { get; set; }
         private readonly ColorFormat _format;
         private TaskCompletionSource<bool> _stopped;
-
 
         public MonoCamera(ColorFormat format)
         {
@@ -62,7 +62,7 @@ namespace LabVision
                     pixelFormat = CapturePixelFormat.NV12
                 };
 
-                _photoCaptureObject.StartPhotoModeAsync(cameraParameters, delegate
+                _photoCaptureObject?.StartPhotoModeAsync(cameraParameters, delegate
                 {
                     _photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
                 });
@@ -70,12 +70,15 @@ namespace LabVision
             return Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Processes the received frame, converts the image to grayscale if requested, and invokes the next photo request.
+        /// </summary>
         private void OnCapturedPhotoToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame photoCaptureFrame)
         {
             if (_stopped?.Task != null) return;
             if (result.resultType == PhotoCapture.CaptureResultType.UnknownError) return;
             if (photoCaptureFrame == null) return;
-            Size size = new Size(FrameWidth, (double)FrameHeight * 3 / 2);
+            Size size = new Size(FrameWidth, (double)FrameHeight * 3 / 2); // Luminance (grayscale) of the NV12 format requires image height, chrominance is stored in half resolution. <see href="https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12"/>.
             _image = new Mat(size, CvType.CV_8UC1);
             List<byte> imageBuffer = new List<byte>();
             photoCaptureFrame?.CopyRawImageDataIntoBuffer(imageBuffer);
@@ -94,7 +97,7 @@ namespace LabVision
             photoCaptureFrame?.TryGetProjectionMatrix(out projectionMatrix);
             CameraIntrinsic intrinsic = new CameraIntrinsic(projectionMatrix);
 
-            CameraFrame cameraFrame = new CameraFrame(_image, intrinsic, extrinsic, FrameWidth, FrameHeight, frameCount++, _format);
+            CameraFrame cameraFrame = new CameraFrame(_image, intrinsic, extrinsic, FrameWidth, FrameHeight, FrameCount++, _format);
             FrameArrivedEventArgs args = new FrameArrivedEventArgs(cameraFrame);
             FrameArrived?.Invoke(this, args);
 
@@ -108,7 +111,7 @@ namespace LabVision
 
         private void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
         {
-            _photoCaptureObject.Dispose();
+            _photoCaptureObject?.Dispose();
             _photoCaptureObject = null;
             _stopped.SetResult(true);
             Debug.Log("Photo mode stopped.");
@@ -117,7 +120,7 @@ namespace LabVision
         public async Task<bool> StopCapture()
         {
             _stopped = new TaskCompletionSource<bool>();
-            _photoCaptureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
+            _photoCaptureObject?.StopPhotoModeAsync(OnStoppedPhotoMode);
             bool stopped = await _stopped.Task;
             _stopped = null;
             return stopped;
