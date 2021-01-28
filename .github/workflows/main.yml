@@ -55,8 +55,7 @@ jobs:
           key: UnityCache-${{ env.UNITY_VERSION }}  
       
       - name: Activate Unity License
-        # TODO: Reenable after sensitive information is resolved: run: Start-UnityEditor -Project .\ -Credential (New-Object System.Management.Automation.PSCredential ("$env:UNITY_EMAIL", (ConvertTo-SecureString "$env:UNITY_PASSWORD" -AsPlainText -Force))) -Serial (ConvertTo-SecureString "$env:UNITY_SERIAL" -AsPlainText -Force) -LogFile .\Logs\Activation.log -AdditionalArguments "-verbose -nographics" -Wait -Verbose -ErrorAction SilentlyContinue
-        run: Start-UnityEditor -Project .\ -Credential (New-Object System.Management.Automation.PSCredential ("$env:UNITY_EMAIL", (ConvertTo-SecureString "$env:UNITY_PASSWORD" -AsPlainText -Force))) -Serial (ConvertTo-SecureString "$env:UNITY_SERIAL" -AsPlainText -Force) -AdditionalArguments "-verbose -nographics" -Wait -Verbose -ErrorAction SilentlyContinue
+        run: Start-UnityEditor -Project .\ -Credential (New-Object System.Management.Automation.PSCredential ("$env:UNITY_EMAIL", (ConvertTo-SecureString "$env:UNITY_PASSWORD" -AsPlainText -Force))) -Serial (ConvertTo-SecureString "$env:UNITY_SERIAL" -AsPlainText -Force) -LogFile .\Logs\Activation.log -AdditionalArguments "-verbose -nographics" -Wait -Verbose -ErrorAction SilentlyContinue
         shell: pwsh
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -65,15 +64,13 @@ jobs:
         #continue-on-error: true # Can output errors even if activation is successful. Using -LogFile reports them as error. As an alternative, log silently as AdditionalArgument "-logFile .\Logs\Activation.log" instead.
 
       - name: Build Unity Project
-        # TODO: Reenable after sensitive information is resolved: run: Start-UnityEditor -Project .\ -ExecuteMethod Microsoft.MixedReality.Toolkit.Build.Editor.UnityPlayerBuildTools.StartCommandLineBuild -BuildTarget WSAPlayer -BatchMode -Quit -LogFile .\Logs\Build.log -Wait -AdditionalArguments "-verbose -nographics -logDirectory Logs -arm64" -Verbose
-        run: Start-UnityEditor -Project .\ -ExecuteMethod Microsoft.MixedReality.Toolkit.Build.Editor.UnityPlayerBuildTools.StartCommandLineBuild -BuildTarget WSAPlayer -BatchMode -Quit -Wait -AdditionalArguments "-verbose -nographics -arm64" -Verbose
+        run: Start-UnityEditor -Project .\ -ExecuteMethod Microsoft.MixedReality.Toolkit.Build.Editor.UnityPlayerBuildTools.StartCommandLineBuild -BuildTarget WSAPlayer -BatchMode -Quit -LogFile .\Logs\Build.log -Wait -AdditionalArguments "-verbose -nographics -logDirectory Logs -arm64" -Verbose
         # Build with appx takes very long, do not use -Quit until https://github.com/microsoft/MixedRealityToolkit-Unity/issues/8901 is resolved
         #run: Start-UnityEditor -Project .\ -ExecuteMethod Microsoft.MixedReality.Toolkit.Build.Editor.UnityPlayerBuildTools.StartCommandLineBuild -BuildTarget WSAPlayer -BatchMode -LogFile .\Logs\Build.log -Wait -AdditionalArguments "-verbose -nographics -logDirectory Logs -buildAppx -arm64" -Verbose
         shell: pwsh
 
       - name: Return Unity License
-        # TODO: Reenable after sensitive information is resolved: run: Start-UnityEditor -Project .\ -Credential (New-Object System.Management.Automation.PSCredential ("$env:UNITY_EMAIL", (ConvertTo-SecureString "$env:UNITY_PASSWORD" -AsPlainText -Force))) -ReturnLicense -LogFile .\Logs\Deactivation.log -Wait -Verbose
-        run: Start-UnityEditor -Project .\ -Credential (New-Object System.Management.Automation.PSCredential ("$env:UNITY_EMAIL", (ConvertTo-SecureString "$env:UNITY_PASSWORD" -AsPlainText -Force))) -ReturnLicense -Wait -Verbose
+        run: Start-UnityEditor -Project .\ -Credential (New-Object System.Management.Automation.PSCredential ("$env:UNITY_EMAIL", (ConvertTo-SecureString "$env:UNITY_PASSWORD" -AsPlainText -Force))) -ReturnLicense -LogFile .\Logs\Deactivation.log -Wait -Verbose
         shell: pwsh
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -81,33 +78,33 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}  
         if: always()
 
-      #- name: Remove sensitive information from Unity logs
-      #  run: | 
-      #    Set-Content -path .\Logs\Activation.log -Value (get-content -path .\Logs\Activation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
-      #    Set-Content -path .\Logs\Build.log -Value (get-content -path .\Logs\Build.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
-      #    Set-Content -path .\Logs\Deactivation.log -Value (get-content -path .\Logs\Deactivation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
-      #    ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Activation.log
-      #    ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Activation.log
-      #    ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Activation.log
-      #    ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Build.log
-      #    ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Build.log
-      #    ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Build.log
-      #    ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Deactivation.log
-      #    ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Deactivation.log
-      #    ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Deactivation.log
-      #  shell: pwsh
-      #  env:
-      #    UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-      #    UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-      #    UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-      #  if: always()
-      
-      - name: Upload Unity Logs
-        uses: actions/upload-artifact@v2
-        with:
-          name: Unity Logs
-          path: Logs/*.log
+      - name: Remove any sensitive information from Unity logs
+        run: | 
+          Set-Content -path .\Logs\Activation.log -Value (get-content -path .\Logs\Activation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          Set-Content -path .\Logs\Build.log -Value (get-content -path .\Logs\Build.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          Set-Content -path .\Logs\Deactivation.log -Value (get-content -path .\Logs\Deactivation.log | Select-String -Pattern 'Serial number assigned to' -NotMatch)
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Activation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Activation.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Build.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Build.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_EMAIL','(email removed)') | Set-Content -Path .\Logs\Deactivation.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_PASSWORD','(password removed)') | Set-Content -Path .\Logs\Deactivation.log
+          ((Get-Content -path .\Logs\Deactivation.log -Raw) -replace '$env:UNITY_SERIAL','(serial removed)') | Set-Content -Path .\Logs\Deactivation.log
+        shell: pwsh
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         if: always()
+      
+      #- name: Upload Unity Logs
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: Unity Logs
+      #    path: Logs/*.log
+      #  if: always()
       
       #- name: Upload Appx Module
       #  uses: actions/upload-artifact@v2
