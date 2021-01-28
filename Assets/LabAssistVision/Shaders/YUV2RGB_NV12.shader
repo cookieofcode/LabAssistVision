@@ -1,4 +1,4 @@
-﻿// https://github.com/microsoft/Windows-universal-samples/blob/1ad51db378ef34fb35078e3ddd4cf94cb717d6eb/Samples/HolographicFaceTracking/cpp/Content/Shaders/QuadPixelShaderNV12.hlsl
+﻿// Adapted from https://github.com/microsoft/Windows-universal-samples/blob/1ad51db378ef34fb35078e3ddd4cf94cb717d6eb/Samples/HolographicFaceTracking/cpp/Content/Shaders/QuadPixelShaderNV12.hlsl
 Shader "Unlit/YUV2RGB_NV12"
 {
 	Properties
@@ -54,6 +54,8 @@ Shader "Unlit/YUV2RGB_NV12"
 			};
 			sampler2D luminanceChannel   : t0;
 			sampler2D chrominanceChannel : t1;
+
+			// from https://github.com/microsoft/Windows-universal-samples/blob/1ad51db378ef34fb35078e3ddd4cf94cb717d6eb/Samples/HolographicFaceTracking/cpp/Content/Shaders/QuadPixelShaderNV12.hlsl
 			static const float3x3 YUVtoRGBCoeffMatrix =
 			{
 				1.164383f,  1.164383f, 1.164383f,
@@ -61,6 +63,7 @@ Shader "Unlit/YUV2RGB_NV12"
 				1.596027f, -0.812968f, 0.000000f
 			};
 
+			// from https://github.com/microsoft/Windows-universal-samples/blob/1ad51db378ef34fb35078e3ddd4cf94cb717d6eb/Samples/HolographicFaceTracking/cpp/Content/Shaders/QuadPixelShaderNV12.hlsl
 			float3 ConvertYUVtoRGB(float3 yuv)
 			{
 				// Derived from https://msdn.microsoft.com/en-us/library/windows/desktop/dd206750(v=vs.85).aspx
