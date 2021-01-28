@@ -78,15 +78,33 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}  
         if: always()
 
-      - name: Remove sensitive Information from Unity logs
-        run: | 
-          Set-Content -Path .\Logs\Activation.log -Value (get-content -Path .\Logs\Activation.log | Select-String -Pattern '$env:UNITY_EMAIL' -NotMatch | Select-String -Pattern '$env:UNITY_PASSWORD' -NotMatch | Select-String -Pattern '$env:UNITY_SERIAL' -NotMatch | Select-String -Pattern 'Serial number assigned to:' -NotMatch);
-          Set-Content -Path .\Logs\Build.log -Value (get-content -Path .\Logs\Build.log | Select-String -Pattern '$env:UNITY_EMAIL' -NotMatch | Select-String -Pattern '$env:UNITY_PASSWORD' -NotMatch | Select-String -Pattern '$env:UNITY_SERIAL' -NotMatch | Select-String -Pattern 'Serial number assigned to:' -NotMatch);
-          Set-Content -Path .\Logs\Deactivation.log -Value (get-content -Path .\Logs\Deactivation.log | Select-String -Pattern '$env:UNITY_EMAIL' -NotMatch | Select-String -Pattern '$env:UNITY_PASSWORD' -NotMatch | Select-String -Pattern '$env:UNITY_SERIAL' -NotMatch | Select-String -Pattern 'Serial number assigned to:' -NotMatch)
-        shell: pwsh
+      - name: Remove email from Unity logs
+        uses: jacobtomlinson/gha-find-replace@0.1.2
+        with:
+          find: "$env:UNITY_EMAIL"
+          replace: "(email removed)"
+          include: "Logs"
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        if: always()
+        
+      - name: Remove password from Unity logs
+        uses: jacobtomlinson/gha-find-replace@0.1.2
+        with:
+          find: "$env:UNITY_PASSWORD"
+          replace: "(password removed)"
+          include: "Logs"
+        env:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        if: always()
+      
+      - name: Remove serial from Unity logs
+        uses: jacobtomlinson/gha-find-replace@0.1.2
+        with:
+          find: "$env:UNITY_SERIAL"
+          replace: "(password removed)"
+          include: "Logs"
+        env:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}  
         if: always()
       
