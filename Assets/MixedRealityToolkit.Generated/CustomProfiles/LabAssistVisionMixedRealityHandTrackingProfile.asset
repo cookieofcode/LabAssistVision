@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8275efdbe76bdff49a97a8e82fba118d, type: 3}
-  m_Name: LabVisionMixedRealityHandTrackingProfile
+  m_Name: LabAssistVisionMixedRealityHandTrackingProfile
   m_EditorClassIdentifier: 
   isCustomProfile: 1
   jointPrefab: {fileID: 0}

@@ -606,9 +606,10 @@ PlayerSettings:
   metroCertificateSubject: cookieofcode
   metroCertificateIssuer: cookieofcode
   metroCertificateNotAfter: 80e2c23a6ff7d701
-  metroApplicationDescription: Computer Vision for Laboratories on HoloLens 2
+  metroApplicationDescription: Proof of concept integrating object recognition using
+    cloud computing and real-time on-device markerless object tracking.
   wsaImages: {}
-  metroTileShortName: Lab
+  metroTileShortName: LabAssistVision
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0

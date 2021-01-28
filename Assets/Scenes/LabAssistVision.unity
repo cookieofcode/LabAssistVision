@@ -48532,9 +48532,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rgbShader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
   luminanceShader: {fileID: 4800000, guid: 6c95dded497f24a48b9ccbc6be66b190, type: 3}
-  displayVideo: 0
-  trackingPreview: 0
-  displayFPS: 0
+  displayVideo: 1
+  trackingPreview: 1
+  displayFPS: 1
   videoDisplay: {fileID: 1467316764}
   fpsDisplay: {fileID: 6797047350820649425}
   scale: 0.0001
