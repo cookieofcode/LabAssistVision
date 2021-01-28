@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.Toolkit.Extensions
 {
-	[MixedRealityServiceProfile(typeof(ICameraService))]
-	[CreateAssetMenu(fileName = "CameraServiceProfile", menuName = "MixedRealityToolkit/CameraService Configuration Profile")]
-	public class CameraServiceProfile : BaseMixedRealityProfile
+    [MixedRealityServiceProfile(typeof(ICameraService))]
+    [CreateAssetMenu(fileName = "CameraServiceProfile", menuName = "MixedRealityToolkit/CameraService Configuration Profile")]
+    public class CameraServiceProfile : BaseMixedRealityProfile
     {
-        [SerializeField]
         /// <summary>
         /// VideoManager resolution and targeted frame rate (may not be achieved).
         /// </summary>
-        [Tooltip("The video parameter needs to match the target device.\nFor HL2, it is recommended to use 1504x846x60")]
+        [SerializeField]
+        [Tooltip("The profile contains resolution and frame rate. This only affects the Locatable Camera of the HoloLens 2")]
         public LocatableCameraProfile locatableCameraProfile = LocatableCameraProfile.HL2_1504x846_60;
 
         /// <summary>

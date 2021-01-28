@@ -17,8 +17,8 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
 
         void SwitchTracker(Tracker tracker);
 
-        int fixedTrackerCount {get; }
-        bool forceFixedTrackerCount { get; }
+        int FixedTrackerCount {get; }
+        bool ForceFixedTrackerCount { get; }
         void ToggleFixedTrackerCount();
         void ChangeFixedTrackerCount(int value);
     }

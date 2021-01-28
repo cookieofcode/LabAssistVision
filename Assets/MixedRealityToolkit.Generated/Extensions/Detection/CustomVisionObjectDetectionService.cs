@@ -16,12 +16,12 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
     [MixedRealityExtensionService(SupportedPlatforms.WindowsStandalone | SupportedPlatforms.WindowsUniversal)]
     public class CustomVisionObjectDetectionService : BaseExtensionService, IObjectDetectionService, IMixedRealityExtensionService
     {
-        [NotNull] private ObjectDetectionServiceProfile _objectDetectionServiceProfile;
+        [NotNull] private readonly ObjectDetectionServiceProfile _objectDetectionServiceProfile;
 
         private int _concurrentCount;
 
         // ReSharper disable once NotNullMemberIsNotInitialized
-        [NotNull] private Logger _logger;
+        [NotNull] private readonly Logger _logger;
 
         private readonly IObjectDetector _objectDetector;
 

@@ -1,3 +1,4 @@
+using System;
 using JetBrains.Annotations;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using Microsoft.MixedReality.Toolkit;
@@ -6,6 +7,7 @@ using UnityEngine;
 namespace Microsoft.MixedReality.Toolkit.Extensions
 {
 	[MixedRealityExtensionService(SupportedPlatforms.WindowsStandalone|SupportedPlatforms.WindowsUniversal)]
+    [Obsolete]
 	public class LoggingService : BaseExtensionService, ILoggingService, IMixedRealityExtensionService
 	{
 		private LoggingServiceProfile loggingServiceProfile;

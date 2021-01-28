@@ -266,13 +266,13 @@ namespace LabVision
             maxConcurrentRequestsSlider.SliderValue = _objectDetectionService.maxConcurrentRequests / 20.0f;
 
             fixedTrackerCountSlider.OnValueUpdated.AddListener(OnFixedTrackerCountUpdated);
-            fixedTrackerCountSlider.SliderValue = _objectTrackingService.fixedTrackerCount / 20.0f;
+            fixedTrackerCountSlider.SliderValue = _objectTrackingService.FixedTrackerCount / 20.0f;
 
             minimalPredictionProbabilitySlider.OnValueUpdated.AddListener(OnMinimalPredictionProbabilityUpdated);
             fixedTrackerCountSlider.SliderValue = (float)_objectDetectionService.minimalPredictionProbability;
 
             forceFixedTrackerCountSwitch.OnClick.AddListener(OnFixedTrackerCountToggled);
-            forceFixedTrackerCountSwitch.IsToggled = _objectTrackingService.forceFixedTrackerCount;
+            forceFixedTrackerCountSwitch.IsToggled = _objectTrackingService.ForceFixedTrackerCount;
 
             detectOnRepeatSwitch.OnClick.AddListener(OnDetectOnRepeatToggled);
             detectOnRepeatSwitch.IsToggled = _objectDetectionService.detectOnRepeat;
@@ -289,7 +289,7 @@ namespace LabVision
         private void OnFixedTrackerCountToggled()
         {
             _objectTrackingService.ToggleFixedTrackerCount();
-            forceFixedTrackerCountSwitch.IsToggled = _objectTrackingService.forceFixedTrackerCount;
+            forceFixedTrackerCountSwitch.IsToggled = _objectTrackingService.ForceFixedTrackerCount;
         }
 
         private void OnDetectOnRepeatToggled()
