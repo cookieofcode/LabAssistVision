@@ -49,12 +49,12 @@ namespace LabVision
         /// <summary>
         /// The <see cref="Shader"/> used to display RGB images (e.g. "Unlit/Texture").
         /// </summary>
-        [CanBeNull] public Shader rgbShader = Shader.Find("Unlit/Texture");
+        [CanBeNull] public Shader rgbShader;
 
         /// <summary>
         /// The <see cref="Shader"/> used to display grayscale images using the luminance.
         /// </summary>
-        [CanBeNull] public Shader luminanceShader = Shader.Find("Unlit/GreyScale_MRTK");
+        [CanBeNull] public Shader luminanceShader;
 
         /// <summary>
         /// Enabling the video display has impact on performance. Can not be changed at runtime.
