@@ -17,7 +17,7 @@ A demonstration video in full length is available at https://youtu.be/-usFovY6nD
 
 ### Key Features
 
-- Provides a camera service using the [color camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera#hololens-2) of the Microsoft HoloLens 2 in Unity without additional plugins
+- Provides a camera service using the [color camera](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/platform-capabilities-and-apis/locatable-camera#hololens-2) of the Microsoft HoloLens 2 in Unity
   - The video format can be switched during runtime
   - Provides camera extrinsic and intrinsic
   - Supports grayscale images (extracting luminance from [NV12](https://docs.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#nv12))
