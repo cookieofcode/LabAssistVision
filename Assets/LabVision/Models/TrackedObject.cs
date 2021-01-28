@@ -8,6 +8,9 @@ using UnityEngine.PlayerLoop;
 
 namespace LabVision
 {
+    /// <summary>
+    /// Represents a tracked object on the video stream.
+    /// </summary>
     public class TrackedObject : ICloneable
     {
         [NotNull] public Rect2d Rect;
@@ -90,11 +93,6 @@ namespace LabVision
         /// <see cref="VisualizationManager"/> may override fallback if main camera is available (only available on main thread).
         /// Adapted from https://github.com/abist-co-ltd/hololens-opencv-laserpointer/blob/master/Assets/Script/HololensLaserPointerDetection.cs.
         /// </summary>
-        /// <param name="intrinsics"></param>
-        /// <param name="extrinsics"></param>
-        /// <param name="rect"></param>
-        /// <param name="frameHeight"></param>
-        /// <returns></returns>
         public Vector3 GetLayForward(Vector2 unprojectionOffset)
         {
 #if ENABLE_WINMD_SUPPORT
@@ -123,19 +121,18 @@ namespace LabVision
             return cameraPosition;
         }
 
-        // we are on mono, for debug purpose take camera.main (also only on main thread available)
+        /// <summary>
+        /// In the Unity Editor, the extrinsic, intrinsic and UWP features are not available.
+        /// The forward vector of the main camera provides an approximation to use for Holographic Remoting.
+        /// The main camera is only available on the main thread.
+        /// </summary>
+        /// <returns>The forward vector of the main camera</returns>
         public Vector3 GetDefaultLayForward()
         {
 #if ENABLE_WINMD_SUPPORT
             Debug.LogWarning("Get default lay forward. This is not necessary UWP.");
 #endif
             // TODO: Check and ensure main thread
-            /*if (!_controller.MainThread.Equals(Thread.CurrentThread))
-            {
-                Debug.LogError("Position could not be determined. Ensure calling on main thread.");
-                return Vector3.zero;
-            }*/
-
             Debug.Log("Using main camera instead of unprojection.");
             var mainCamera = Camera.main;
             if (mainCamera != null) return mainCamera.transform.forward * -1f; // TODO: Check -1

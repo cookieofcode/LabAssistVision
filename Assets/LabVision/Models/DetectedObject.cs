@@ -4,6 +4,9 @@ using OpenCVForUnity.CoreModule;
 
 namespace LabVision
 {
+    /// <summary>
+    /// Represents a detected object.
+    /// </summary>
     public class DetectedObject
     {
         [NotNull] public Rect2d Rect;

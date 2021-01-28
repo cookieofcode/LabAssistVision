@@ -5,6 +5,10 @@ using OpenCVForUnity.TrackingModule;
 
 namespace LabVision
 {
+    /// <summary>
+    /// Represents an object tracked using an <see cref="IObjectTracker">OpenCV Tracker</see>.
+    /// Keeps track of the tracked object, tracker and checks if updating the tracker failed or the rectangle did not move.
+    /// </summary>
     public class CvTrackedObject
     {
         [NotNull] private TrackedObject _trackedObject;

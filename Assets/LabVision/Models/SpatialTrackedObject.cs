@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace LabVision
 {
+    /// <summary>
+    /// Represents a tracked object reduced to its label and position in the world.
+    /// </summary>
     public class SpatialTrackedObject
     {
         [NotNull] public string Label;
