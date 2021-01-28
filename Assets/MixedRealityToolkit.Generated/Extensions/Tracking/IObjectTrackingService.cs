@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using LabVision;
+using LabAssistVision;
 using UnityEngine;
 
 namespace Microsoft.MixedReality.Toolkit.Extensions
@@ -17,8 +17,8 @@ namespace Microsoft.MixedReality.Toolkit.Extensions
 
         void SwitchTracker(Tracker tracker);
 
-        int fixedTrackerCount {get; }
-        bool forceFixedTrackerCount { get; }
+        int FixedTrackerCount {get; }
+        bool ForceFixedTrackerCount { get; }
         void ToggleFixedTrackerCount();
         void ChangeFixedTrackerCount(int value);
     }

@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/LabVision.unity
+    path: Assets/Scenes/LabAssistVision.unity
     guid: 89d168185020d1347a31d368fc3005b0
   m_configObjects: {}
