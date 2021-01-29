@@ -66,7 +66,7 @@ The following table highlights specific dependencies in this project:
 | [DotNetWinRT](https://www.nuget.org/packages/Microsoft.Windows.MixedReality.DotNetWinRT) | 0.5.1049 | Included in repository, resolved by NuGet for Unity | NuGet Package |
 | [Mixed Reality Toolkit for Unity](https://github.com/microsoft/MixedRealityToolkit-Unity) | 2.5.1 | Resolved by Unity Package Manager | Licensed under the MIT License |
 | [Barracuda](https://docs.unity3d.com/Packages/com.unity.barracuda@1.0/manual/index.html) | 1.0.4 | Resolved by Unity Package Manager | Required to run the Custom Vision network on the device (experimental feature) |
-| Windows Mixed Reality | 4.2.3 | Resolved by Unity Package Manager | The Unity legacy XR plugin is currently used. This package is deprecated and will be removed in Unity 2020.1 |
+| [Windows Mixed Reality](https://docs.unity3d.com/Packages/com.unity.xr.windowsmr.metro@4.2/manual/index.html) | 4.2.3 | Resolved by Unity Package Manager | The Unity legacy XR plugin is currently used. This package is deprecated and will be removed in Unity 2020.1 |
 
 ### Project Configuration
 
