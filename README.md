@@ -13,7 +13,7 @@ Supervisor: [Prof. Dr. Doris Agotai](https://www.fhnw.ch/de/personen/doris-agota
 
 [![Image of demonstration not loaded yet. See the demonstration video below.](./teaser.gif)](https://youtu.be/-usFovY6nD8)
 
-A demonstration video in full length is available at https://youtu.be/-usFovY6nD8
+A demonstration video in full length is available at https://youtu.be/-usFovY6nD8. *Note that the video's quality is limited due to the simultaneous use of the color camera for tracking and mixed reality capture.*
 
 ### Key Features
 
