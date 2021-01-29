@@ -41,7 +41,7 @@ A demonstration video in full length is available at https://youtu.be/-usFovY6nD
 
 *Lab Vision requires [OpenCVForUnity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088) and a [Custom Vision](https://www.customvision.ai) network, including prediction endpoint and key.* The following gives a step-by-step instruction to set up the project:
 
-1. Open the project (e.g., in the Unity Hub) with Unity Version 2019.4.15f1 and Universal Windows Platform. *Note: Another Unity version may require adjustments or API updates*
+1. Open the project (e.g., in the Unity Hub) with Unity Version 2019.4.15f1 and Universal Windows Platform. *Note: Another Unity version may require adjustments or API updates (e.g. XR Plugin System)*
 
 2. Import [OpenCVForUnity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088) version 2.4.1 (e.g., using the Unity Package Manager). Only the OpenCVForUnity Wrapper API and prebuilt OpenCV for Windows and UWP are required.
 
@@ -57,7 +57,7 @@ A demonstration video in full length is available at https://youtu.be/-usFovY6nD
 
 ### Dependencies
 
-The following table contains dependencies required in this project:
+The following table highlights specific dependencies in this project:
 
 | Dependency | Version | Resolvment | Remark |
 | ------------- |:-------------:| :-----| :---|
@@ -66,6 +66,7 @@ The following table contains dependencies required in this project:
 | [DotNetWinRT](https://www.nuget.org/packages/Microsoft.Windows.MixedReality.DotNetWinRT) | 0.5.1049 | Included in repository, resolved by NuGet for Unity | NuGet Package |
 | [Mixed Reality Toolkit for Unity](https://github.com/microsoft/MixedRealityToolkit-Unity) | 2.5.1 | Resolved by Unity Package Manager | Licensed under the MIT License |
 | [Barracuda](https://docs.unity3d.com/Packages/com.unity.barracuda@1.0/manual/index.html) | 1.0.4 | Resolved by Unity Package Manager | Required to run the Custom Vision network on the device (experimental feature) |
+| Windows Mixed Reality | 4.2.3 | Resolved by Unity Package Manager | The Unity legacy XR plugin is currently used. This package is deprecated and will be removed in Unity 2020.1 |
 
 ### Project Configuration
 
@@ -83,6 +84,7 @@ Ensure that the following settings are configured in Unity:
       - Virtual Reality Supported: *true*
       - Depth Format: *16-bit*
 - Unity Editor: Ensure that all MRTK extension services have a profile assigned. (MixedRealityToolkit Game Object > Extension Services)
+- Package Manager: The project is built using legacy XR (Windows Mixed Reality).
 
 ### Build
 
