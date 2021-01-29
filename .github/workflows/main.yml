@@ -108,12 +108,12 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         if: always()
       
-      #- name: Upload Unity Logs
-      #  uses: actions/upload-artifact@v2
-      #  with:
-      #    name: Unity Logs
-      #    path: Logs/*.log
-      #  if: always()
+      - name: Upload Unity Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unity Logs
+          path: Logs/*.log
+        if: always()
       
       #- name: Upload Appx Module
       #  uses: actions/upload-artifact@v2
