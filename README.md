@@ -7,6 +7,10 @@ This work is part of the thesis "*Mixed Reality Task Assistance for Pharmaceutic
 Author: [Severin Pereto](https://github.com/cookieofcode)\
 Supervisor: [Prof. Dr. Doris Agotai](https://www.fhnw.ch/de/personen/doris-agotai)
 
+## Note
+
+As I have no longer access to a HoloLens 2 to actively maintain, this repository remains archived.
+
 ## Overview
 
 *Lab Assist Vision* provides a showcase for markerless tracking in pharmaceutical laboratories using the [Microsoft HoloLens 2](https://www.microsoft.com/de-de/hololens/hardware). Using the voice command *"Detect,"* objects are recognized by a cloud service to initialize markerless tracking on the device. The tracked laboratory items can be confirmed by eye gaze and the voice command *"Okay"* to change the tooltip color.
